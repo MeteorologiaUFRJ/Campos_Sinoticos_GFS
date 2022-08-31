@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Tue Aug 30 16:52:10 2022
+Created on Wed Aug 24 17:39:26 2022
 
 @author: coqueiro
 """
@@ -27,7 +27,8 @@ file_1 = file_1.assign_coords(dict(
     longitude = (((file_1.longitude.values + 180) % 360) - 180))
     ).sortby('longitude')
 
-#seleciona as fatias de lat e lon
+#
+#extent
 lon_slice = slice(-120., 10.)
 lat_slice = slice(10., -70.)
 
@@ -35,22 +36,30 @@ lat_slice = slice(10., -70.)
 lats = file_1.latitude.sel(latitude=lat_slice).values
 lons = file_1.longitude.sel(longitude=lon_slice).values
 
-#seleciona o nivel em hPa
-level = 1000 * units('hPa')
+#seta as variaveis
+level_1 = 850 * units('hPa')
+level_2 = 500 * units('hPa')
+
 
 for i in range(len(file_1.variables['time'])):
     
+    geopotencial = file_1.Geopotential_height_isobaric.metpy.sel(
+        time = file_1.time[i], 
+        vertical=level_2, 
+        latitude=lat_slice, 
+        longitude=lon_slice
+        ).metpy.unit_array.squeeze()
     
     u = file_1['u-component_of_wind_isobaric'].metpy.sel(
         time = file_1.time[i], 
-        vertical=level, 
+        vertical=level_1, 
         latitude=lat_slice, 
         longitude=lon_slice
         ).metpy.unit_array.squeeze()
     
     v = file_1['v-component_of_wind_isobaric'].metpy.sel(
         time = file_1.time[i], 
-        vertical=level, 
+        vertical=level_1, 
         latitude=lat_slice, 
         longitude=lon_slice
         ).metpy.unit_array.squeeze()
@@ -59,14 +68,21 @@ for i in range(len(file_1.variables['time'])):
         time = file_1.time[i], 
         latitude=lat_slice, 
         longitude=lon_slice
-        ).metpy.unit_array.squeeze()*0.01*units.hPa/units.Pa
+        ).metpy.unit_array.squeeze()* 0.01 * units.hPa/units.Pa
+    
+    t = file_1.Temperature_isobaric.metpy.sel(
+        time = file_1.time[i],  
+        vertical=level_1, 
+        latitude=lat_slice, 
+        longitude=lon_slice
+        ).metpy.unit_array.squeeze()
     
     #data
     vtime = file_1.time.data[i].astype('datetime64[ms]').astype('O')
     
     dx, dy = mpcalc.lat_lon_grid_deltas(lons, lats)
     
-    vorticidade = mpcalc.vorticity(u, v, dx=dx, dy=dy, x_dim=- 1, y_dim=- 2)*10**5
+    adv_temp = mpcalc.advection(t, u=u, v=v, dx=dx, dy=dy, x_dim=- 1, y_dim=- 2)*1000
     
     # escolha o tamanho do plot em polegadas (largura x altura)
     plt.figure(figsize=(25,25))
@@ -82,8 +98,7 @@ for i in range(len(file_1.variables['time'])):
         )
     
     ax.add_geometries(
-        shapefile, 
-        ccrs.PlateCarree(), 
+        shapefile, ccrs.PlateCarree(), 
         edgecolor = 'black', 
         facecolor='none', 
         linewidth=0.5
@@ -96,7 +111,7 @@ for i in range(len(file_1.variables['time'])):
                       color='gray',
                       alpha=1.0, 
                       linestyle='--', 
-                      linewidth=0.5,
+                      linewidth=0.5, 
                       xlocs=np.arange(-180, 180, 10), 
                       ylocs=np.arange(-90, 90, 10), 
                       draw_labels=True
@@ -106,45 +121,69 @@ for i in range(len(file_1.variables['time'])):
     gl.xlabel_style = {'size': 29, 'color': 'black'}
     gl.ylabel_style = {'size': 29, 'color': 'black'}
     
+    
     # intevalos da pnmm
     intervalo_min2 = np.amin(np.array(pnmm))
     intervalo_max2 = np.amax(np.array(pnmm))
-    interval_2 = 2              # de quanto em quanto voce quer que varie
+    interval_2 = 4              # de quanto em quanto voce quer que varie
     levels_2 = np.arange(intervalo_min2, intervalo_max2, interval_2)
     
-    # intevalos da divergencia - umidade
-    intervalo_min3 = -30
-    intervalo_max3 = 1
-    interval_3 = 2             # de quanto em quanto voce quer que varie
+    # intevalos da adv de temp
+    intervalo_min3 = -2.
+    intervalo_max3 = 2.
+    interval_3 = 0.1              # de quanto em quanto voce quer que varie
     levels_3 = np.arange(intervalo_min3, intervalo_max3, interval_3)
+    
+    # intevalos da geopotencial
+    intervalo_min1 = np.amin(np.array(geopotencial))
+    intervalo_max1 = np.amax(np.array(geopotencial))
+    interval_1 = 100              # de quanto em quanto voce quer que varie
+    levels_1 = np.arange(intervalo_min1, intervalo_max1, interval_1)
     
     # adiciona mascara de terra
     ax.add_feature(cfeature.LAND)
     
-    # plota a imagem geopotencial
+    # plota a imagem adv de temp
     sombreado = ax.contourf(lons, 
                             lats, 
-                            vorticidade, 
-                            cmap=cmocean.cm.dense_r, 
+                            adv_temp, 
+                            cmap='seismic', 
                             levels = levels_3, 
                             extend = 'both'
                             )
     
     # plota a imagem pressao
-    contorno = ax.contour(lons,
+    contorno_1 = ax.contour(lons,
                           lats, 
                           pnmm, 
                           colors='black', 
-                          linewidths=0.8, 
+                          linewidths=0.5, 
                           levels=levels_2
                           )
     
-    ax.clabel(contorno, 
+    ax.clabel(contorno_1, 
               inline = 1, 
               inline_spacing = 1, 
-              fontsize=20, 
+              fontsize=15, 
               fmt = '%3.0f', 
               colors= 'black'
+              )
+    
+    # plota a imagem geopotencial
+    contorno_2 = ax.contour(lons,
+                          lats, 
+                          geopotencial, 
+                          colors='green', 
+                          linewidths=1.0, 
+                          levels=levels_1
+                          )
+    
+    ax.clabel(contorno_2, 
+              inline = 1, 
+              inline_spacing = 1, 
+              fontsize=20,
+              fmt = '%3.0f', 
+              colors= 'green'
               )
     
     # adiciona legenda 
@@ -156,18 +195,19 @@ for i in range(len(file_1.variables['time'])):
     font_size = 20 # Adjust as appropriate.
     barra_de_cores.ax.tick_params(labelsize=font_size)
     
+   
     # Add a title
-    plt.title('Vorticidade relativa (1/s) - 1000 hPa',
+    plt.title('Adveccao de temperatura (K/s) - 850 hPa',
               fontweight='bold', 
               fontsize=35, 
               loc='left'
               )
+    
     #previsao
     #plt.title('Valid Time: {}'.format(vtime), fontsize=35, loc='right')
     #analise
     plt.title('Análise: {}'.format(vtime), fontsize=35, loc='right')
     
-    
     #--------------------------------------------------------------------------
     # Salva imagem
-    plt.savefig(f'/home/coqueiro/ufrj/Estagio_supervisionado/imagens/vorticidade/vorticidade_relativa_{format(vtime)}.png', bbox_inches='tight')
+    plt.savefig(f'/home/coqueiro/ufrj/Estagio_supervisionado/imagens/adv_temperatura/adveccao_de_temperatura_{vtime}.png', bbox_inches='tight')
