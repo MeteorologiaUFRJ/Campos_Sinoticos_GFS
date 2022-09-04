@@ -115,6 +115,10 @@ for i in range(len(file_1.variables['time1'])):
                       )
     gl.top_labels = False
     gl.right_labels = False
+    gl.top_labels = False
+    gl.right_labels = False
+    gl.xlabel_style = {'size': 29, 'color': 'black'}
+    gl.ylabel_style = {'size': 29, 'color': 'black'}
     
     # adiciona mascara de terra
     ax.add_feature(cfeature.LAND)

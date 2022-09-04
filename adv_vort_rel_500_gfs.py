@@ -22,7 +22,7 @@ import cmocean
 #dataset
 
 file_1 = xr.open_dataset(
-    '/home/coqueiro/Downloads/GFS_Global_0p25deg_ana_20220830_1200.grib2_multi.nc4'
+    '/home/coqueiro/Downloads/GFS_Global_0p25deg_20220903_1200.grib2.nc4'
     ).metpy.parse_cf()
 
 file_1 = file_1.assign_coords(dict(
@@ -40,37 +40,37 @@ lons = file_1.longitude.sel(longitude=lon_slice).values
 #seta as variaveis
 level = 500 * units('hPa')
 
-for i in range(len(file_1.variables['time'])):
+for i in range(len(file_1.variables['time1'])):
     
     geopotencial = file_1.Geopotential_height_isobaric.metpy.sel(
-        time = file_1.time[i], 
+        time = file_1.time1[i], 
         vertical=level, 
         latitude=lat_slice, 
         longitude=lon_slice
         ).metpy.unit_array.squeeze()
     
     u = file_1['u-component_of_wind_isobaric'].metpy.sel(
-        time = file_1.time[i], 
+        time = file_1.time1[i], 
         vertical=level, 
         latitude=lat_slice, 
         longitude=lon_slice
         ).metpy.unit_array.squeeze()
     
     v = file_1['v-component_of_wind_isobaric'].metpy.sel(
-        time = file_1.time[i], 
+        time = file_1.time1[i], 
         vertical=level, 
         latitude=lat_slice, 
         longitude=lon_slice
         ).metpy.unit_array.squeeze()
     
-    pnmm = file_1.MSLP_Eta_model_reduction_msl.metpy.sel(
-        time = file_1.time[i], 
+    pnmm = file_1.Pressure_reduced_to_MSL_msl.metpy.sel(
+        time = file_1.time1[i], 
         latitude=lat_slice, 
         longitude=lon_slice
         ).metpy.unit_array.squeeze()* 0.01 * units.hPa/units.Pa
     
     #data
-    vtime = file_1.time.data[i].astype('datetime64[ms]').astype('O')
+    vtime = file_1.time1.data[i].astype('datetime64[ms]').astype('O')
     
     dx, dy = mpcalc.lat_lon_grid_deltas(lons, lats)
     vorticidade = mpcalc.vorticity(u, v, dx=dx, dy=dy, x_dim=- 1, y_dim=- 2)*10**5
@@ -146,28 +146,28 @@ for i in range(len(file_1.variables['time'])):
                             )
     
     # plota a imagem pressao
-    contorno_1 = ax.contour(lons,
-                          lats, 
-                          pnmm, 
-                          colors='black', 
-                          linewidths=0.5, 
-                          levels=levels_2
-                          )
+    # contorno_1 = ax.contour(lons,
+    #                       lats, 
+    #                       pnmm, 
+    #                       colors='black', 
+    #                       linewidths=0.5, 
+    #                       levels=levels_2
+    #                       )
     
-    ax.clabel(contorno_1, 
-              inline = 1, 
-              inline_spacing = 1, 
-              fontsize=15, 
-              fmt = '%3.0f', 
-              colors= 'black'
-              )
+    # ax.clabel(contorno_1, 
+    #           inline = 1, 
+    #           inline_spacing = 1, 
+    #           fontsize=15, 
+    #           fmt = '%3.0f', 
+    #           colors= 'black'
+    #           )
     
     # plota a imagem geopotencial
     contorno_2 = ax.contour(lons,
                           lats, 
                           geopotencial, 
                           colors='green', 
-                          linewidths=1.0, 
+                          linewidths=1.5, 
                           levels=levels_1
                           )
     

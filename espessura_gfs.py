@@ -23,7 +23,7 @@ import cmocean
 #dataset
 
 file_1 = xr.open_dataset(
-    '/home/coqueiro/Downloads/GFS_Global_0p25deg_ana_20220830_1200.grib2_multi.nc4'
+    '/home/coqueiro/Downloads/GFS_Global_0p25deg_20220903_1200.grib2.nc4'
     ).metpy.parse_cf()
 
 file_1 = file_1.assign_coords(dict(
@@ -42,30 +42,30 @@ lons = file_1.longitude.sel(longitude=lon_slice).values
 level_1 = 1000 * units('hPa')
 level_2 = 500 * units('hPa')
  
-for i in range(len(file_1.variables['time'])):
+for i in range(len(file_1.variables['time1'])):
     
     geopotencial_1000 = file_1.Geopotential_height_isobaric.metpy.sel(
-        time = file_1.time[i], 
+        time1 = file_1.time1[i], 
         vertical=level_1, 
         latitude=lat_slice, 
         longitude=lon_slice
         ).metpy.unit_array.squeeze()
     
     geopotencial_500 = file_1.Geopotential_height_isobaric.metpy.sel(
-        time = file_1.time[i], 
+        time1 = file_1.time1[i], 
         vertical=level_2, 
         latitude=lat_slice, 
         longitude=lon_slice
         ).metpy.unit_array.squeeze()
     
-    pnmm = file_1.MSLP_Eta_model_reduction_msl.metpy.sel(
-        time = file_1.time[i], 
+    pnmm = file_1.Pressure_reduced_to_MSL_msl.metpy.sel(
+        time1 = file_1.time1[i], 
         latitude=lat_slice, 
         longitude=lon_slice
         ).metpy.unit_array.squeeze()*0.01*units.hPa/units.Pa
     
     #data
-    vtime = file_1.time.data[i].astype('datetime64[ms]').astype('O')
+    vtime1 = file_1.time1.data[i].astype('datetime64[ms]').astype('O')
     
     dx, dy = mpcalc.lat_lon_grid_deltas(lons, lats)
     
@@ -179,11 +179,11 @@ for i in range(len(file_1.variables['time'])):
               )
     
     #previsao
-    #plt.title('Valid Time: {}'.format(vtime), fontsize=35, loc='right')
+    #plt.title('Valid time1: {}'.format(vtime1), fontsize=35, loc='right')
     #analise
-    plt.title('Análise: {}'.format(vtime), fontsize=35, loc='right')
+    plt.title('Análise: {}'.format(vtime1), fontsize=35, loc='right')
     
     #--------------------------------------------------------------------------
     # Salva imagem
-    plt.savefig(f'/home/coqueiro/ufrj/Estagio_supervisionado/imagens/espessura/espessura_{vtime}.png', bbox_inches='tight')
+    plt.savefig(f'/home/coqueiro/ufrj/Estagio_supervisionado/imagens/espessura/espessura_{vtime1}.png', bbox_inches='tight')
 
