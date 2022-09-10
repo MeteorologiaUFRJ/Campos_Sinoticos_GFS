@@ -20,7 +20,7 @@ import cmocean
 
 #dataset
 file_1 = xr.open_dataset(
-    '/home/coqueiro/Downloads/GFS_Global_0p25deg_20220903_1200.grib2.nc4'
+    '/home/coqueiro/Downloads/GFS_Global_0p25deg_20220910_0600.grib2.nc4'
     ).metpy.parse_cf()
 
 file_1 = file_1.assign_coords(dict(
@@ -89,24 +89,6 @@ for i in range(len(file_1.variables['time1'])):
     
     # usando a projeção da coordenada cilindrica equidistante 
     ax = plt.axes(projection=ccrs.PlateCarree())
-    
-    
-    shapefile = list(
-        shpreader.Reader(
-        '/home/coqueiro/ufrj/Estagio_supervisionado/shapefile/unidades_federativas/Brasil/UFEBRASIL.shp'
-        ).geometries()
-        )
-    
-    ax.add_geometries(
-        shapefile, ccrs.PlateCarree(), 
-        edgecolor = 'black', 
-        facecolor='none', 
-        linewidth=0.5
-        )
-    
-    # adiciona continente e bordas
-    ax.coastlines(resolution='50m', color='black', linewidth=1)
-    ax.add_feature(cfeature.BORDERS, edgecolor='black', linewidth=1)
     gl = ax.gridlines(crs=ccrs.PlateCarree(),
                       color='gray',
                       alpha=1.0, 
@@ -139,9 +121,7 @@ for i in range(len(file_1.variables['time1'])):
     intervalo_max1 = np.amax(np.array(geopotencial))
     interval_1 = 100              # de quanto em quanto voce quer que varie
     levels_1 = np.arange(intervalo_min1, intervalo_max1, interval_1)
-    
-    # adiciona mascara de terra
-    ax.add_feature(cfeature.LAND)
+
     
     # plota a imagem adv de temp
     sombreado = ax.contourf(lons, 
@@ -149,7 +129,7 @@ for i in range(len(file_1.variables['time1'])):
                             adv_temp, 
                             cmap='seismic', 
                             levels = levels_3, 
-                            extend = 'both'
+                            extend = 'neither'
                             )
     
     # plota a imagem pressao
@@ -185,6 +165,25 @@ for i in range(len(file_1.variables['time1'])):
               fmt = '%3.0f', 
               colors= 'green'
               )
+    
+    #adicionando shapefile
+    shapefile = list(
+        shpreader.Reader(
+        '/home/coqueiro/Downloads/br_unidades_da_federacao/BR_UF_2019.shp'
+        ).geometries()
+        )
+    
+    ax.add_geometries(
+        shapefile, ccrs.PlateCarree(), 
+        edgecolor = 'black', 
+        facecolor='none', 
+        linewidth=0.5
+        )
+    
+    # adiciona continente e bordas
+    ax.add_feature(cfeature.LAND)
+    ax.coastlines(resolution='10m', color='black', linewidth=1)
+    ax.add_feature(cfeature.BORDERS, edgecolor='black', linewidth=1)
     
     # adiciona legenda 
     barra_de_cores = plt.colorbar(sombreado, 

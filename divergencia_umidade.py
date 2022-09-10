@@ -22,7 +22,7 @@ import cmocean
 #dataset
 
 file_1 = xr.open_dataset(
-    '/home/coqueiro/Downloads/GFS_Global_0p25deg_20220903_1200.grib2.nc4'
+    '/home/coqueiro/Downloads/GFS_Global_0p25deg_20220910_0600.grib2.nc4'
     ).metpy.parse_cf()
 
 file_1 = file_1.assign_coords(dict(
@@ -87,23 +87,6 @@ for i in range(len(file_1.variables['time1'])):
     
     # usando a projeção da coordenada cilindrica equidistante 
     ax = plt.axes(projection=ccrs.PlateCarree())
-    
-    shapefile = list(
-        shpreader.Reader(
-        '/home/coqueiro/Downloads/br_unidades_da_federacao/BR_UF_2019.shp'
-        ).geometries()
-        )
-    
-    ax.add_geometries(
-        shapefile, ccrs.PlateCarree(), 
-        edgecolor = 'black', 
-        facecolor='none', 
-        linewidth=0.5
-        )
-    
-    # adiciona continente e bordas
-    ax.coastlines(resolution='50m', color='black', linewidth=1)
-    ax.add_feature(cfeature.BORDERS, edgecolor='black', linewidth=1)
     gl = ax.gridlines(crs=ccrs.PlateCarree(),
                       color='gray',
                       alpha=1.0, 
@@ -120,20 +103,38 @@ for i in range(len(file_1.variables['time1'])):
     gl.xlabel_style = {'size': 29, 'color': 'black'}
     gl.ylabel_style = {'size': 29, 'color': 'black'}
     
-    # adiciona mascara de terra
-    ax.add_feature(cfeature.LAND)
-    
     # plota a imagem divergencia
     sombreado = ax.contourf(lons, 
                             lats, 
                             divergencia_umidade, 
                             cmap = cmap, 
                             levels = divlevs, 
-                            extend = 'both'
+                            extend = 'neither'
                             )
     
 
     ax.streamplot(lons, lats, u, v, density=[3,3], linewidth=1.5, color='black', transform=ccrs.PlateCarree())
+    
+    
+    shapefile = list(
+        shpreader.Reader(
+        '/home/coqueiro/Downloads/br_unidades_da_federacao/BR_UF_2019.shp'
+        ).geometries()
+        )
+    
+    ax.add_geometries(
+        shapefile, ccrs.PlateCarree(), 
+        edgecolor = 'black', 
+        facecolor='none', 
+        linewidth=0.5
+        )
+    
+    # adiciona continente e bordas
+    ax.coastlines(resolution='10m', color='black', linewidth=1)
+    ax.add_feature(cfeature.BORDERS, edgecolor='black', linewidth=1)
+    # adiciona mascara de terra
+    ax.add_feature(cfeature.LAND)
+    
     
     # adiciona legenda 
     barra_de_cores = plt.colorbar(sombreado, 

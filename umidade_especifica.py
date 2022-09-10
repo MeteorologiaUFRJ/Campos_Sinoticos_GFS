@@ -1,12 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Wed Aug 24 18:20:34 2022
+Created on Sat Sep 10 11:26:22 2022
 
 @author: coqueiro
 """
-
-
 #importando bibliotecas
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
@@ -19,6 +17,7 @@ import xarray as xr
 import cartopy.io.shapereader as shpreader # Import shapefiles
 from datetime import datetime, timedelta  # basicas datas e tipos de tempo
 import cmocean
+import matplotlib.colors as mcolors
 
 #dataset
 
@@ -38,39 +37,61 @@ lat_slice = slice(10., -70.)
 lats = file_1.latitude.sel(latitude=lat_slice).values
 lons = file_1.longitude.sel(longitude=lon_slice).values
 
-#seta as variaveis
-level_1 = 1000 * units('hPa')
-level_2 = 500 * units('hPa')
- 
+level = 850*units('hPa')
 for i in range(len(file_1.variables['time1'])):
-    
-    geopotencial_1000 = file_1.Geopotential_height_isobaric.metpy.sel(
-        time1 = file_1.time1[i], 
-        vertical=level_1, 
+
+    # selecionando variaveis
+    u = file_1['u-component_of_wind_isobaric'].metpy.sel(
+        time = file_1.time1[i], 
+        vertical=level, 
         latitude=lat_slice, 
         longitude=lon_slice
         ).metpy.unit_array.squeeze()
     
-    geopotencial_500 = file_1.Geopotential_height_isobaric.metpy.sel(
-        time1 = file_1.time1[i], 
-        vertical=level_2, 
+    v = file_1['v-component_of_wind_isobaric'].metpy.sel(
+        time = file_1.time1[i], 
+        vertical=level, 
         latitude=lat_slice, 
         longitude=lon_slice
         ).metpy.unit_array.squeeze()
     
-    pnmm = file_1.Pressure_reduced_to_MSL_msl.metpy.sel(
-        time1 = file_1.time1[i], 
+    q = file_1.Specific_humidity_isobaric.metpy.sel(
+        time = file_1.time1[i], 
+        vertical=level, 
         latitude=lat_slice, 
         longitude=lon_slice
-        ).metpy.unit_array.squeeze()*0.01*units.hPa/units.Pa
+        ).metpy.unit_array.squeeze()* 1e3
     
     #data
     vtime1 = file_1.time1.data[i].astype('datetime64[ms]').astype('O')
+
+    # ============================================================================ #
+    # Colorbar
+    # ============================================================================ #
     
-    dx, dy = mpcalc.lat_lon_grid_deltas(lons, lats)
+    # define os intervalos da legenda
+    clevs = np.array([2, 4, 6, 8, 10, 12, 14, 16, 18])
     
-    espessura = geopotencial_500 - geopotencial_1000
+    # lista de cores, em ordem crescete. RGBA
+    colors = np.array([ # (R, G, B, A)
+        [242, 98, 0, 255],
+        [249, 155, 77, 255],
+        [254, 217, 118, 255],
+        [255, 247, 188, 255],
+        [190, 220, 230, 255],
+        [156, 194, 255, 255],
+        [59, 118, 255, 255],
+        [0, 77, 182, 255]
+    ]) / 255 # divide por 255
     
+    # cria um novo cmap a partir do pre-existente
+    cmap = mcolors.LinearSegmentedColormap.from_list(
+        'specific humidity cmap', colors, clevs.shape[0] - 1)
+    cmap.set_over(np.array([0, 37, 89, 255])/255)
+    cmap.set_under('white')
+    
+    # nromaliza com base nos intervalos
+    norm = mcolors.BoundaryNorm(clevs, cmap.N) # usado no PColorMesh
     
     # escolha o tamanho do plot em polegadas (largura x altura)
     plt.figure(figsize=(25,25))
@@ -82,86 +103,39 @@ for i in range(len(file_1.variables['time1'])):
                       alpha=1.0, 
                       linestyle='--', 
                       linewidth=0.5, 
-                      xlocs=np.arange(-180, 180, 10), 
-                      ylocs=np.arange(-90, 90, 10), 
+                      xlocs=np.arange(-180, 180, 5), 
+                      ylocs=np.arange(-90, 90, 5), 
                       draw_labels=True
                       )
+    gl.top_labels = False
+    gl.right_labels = False
     gl.top_labels = False
     gl.right_labels = False
     gl.xlabel_style = {'size': 29, 'color': 'black'}
     gl.ylabel_style = {'size': 29, 'color': 'black'}
     
-    # cria uma escala de cores:
-    colors = ["#2d001c", "#5b0351", "#780777", "#480a5e", "#1e1552", 
-              "#1f337d", "#214c9f", "#2776c6", "#2fa5f1", "#1bad1d", 
-              "#8ad900", "#ffec00", "#ffab00", "#f46300", "#de3b00", 
-              "#ab1900", "#6b0200", '#3c0000']
-    
-    cmap = matplotlib.colors.LinearSegmentedColormap.from_list("", colors)
-    cmap.set_over('#3c0000')
-    cmap.set_under('#28000a')
-    
-    # intevalos da espessura
-    intervalo_min2 = 4900
-    intervalo_max2 = 5900
-    interval_2 = 25             # de quanto em quanto voce quer que varie
-    levels_2 = np.arange(intervalo_min2, intervalo_max2, interval_2)
-    
-    # intevalos da pnmm
-    intervalo_min1 = np.amin(np.array(pnmm))
-    intervalo_max1 = np.amax(np.array(pnmm))
-    interval_1 = 2              # de quanto em quanto voce quer que varie
-    levels_1 = np.arange(intervalo_min1, intervalo_max1, interval_1)
-    
-    
-    
-    # plota a imagem espessura
-    sombreado = ax.contourf(lons, 
-                            lats, 
-                            espessura, 
-                            cmap=cmap, 
-                            levels = levels_2, 
-                            extend = 'neither'
-                            )
-    
-    # plota a imagem pressao
-    contorno_1 = ax.contour(lons,
-                          lats, 
-                          pnmm, 
-                          colors='black', 
-                          linewidths=0.8, 
-                          levels=levels_1
-                          )
-    
-    ax.clabel(contorno_1, 
-              inline = 1, 
-              inline_spacing = 1, 
-              fontsize=15, 
-              fmt = '%3.0f', 
-              colors= 'black'
-              )
-
+    # corrente de jato
+    sombreado = ax.contourf(lons, lats, q, cmap = cmap, levels = clevs, extend='both')
+    ax.streamplot(lons, lats, u, v, density=[6,6], linewidth=1.5, color='black', transform=ccrs.PlateCarree())
     
     #adicionando shapefile
     shapefile = list(
         shpreader.Reader(
-        '/home/coqueiro/Downloads/br_unidades_da_federacao/BR_UF_2019.shp'
+        '/home/coqueiro/ufrj/Estagio_supervisionado/shapefile/unidades_federativas/Brasil/UFEBRASIL.shp'
         ).geometries()
         )
     
     ax.add_geometries(
-        shapefile, ccrs.PlateCarree(), 
+        shapefile, 
+        ccrs.PlateCarree(), 
         edgecolor = 'black', 
         facecolor='none', 
         linewidth=0.5
         )
     
-    # adiciona mascara de terra
-    ax.add_feature(cfeature.LAND)
     # adiciona continente e bordas
     ax.coastlines(resolution='10m', color='black', linewidth=1)
     ax.add_feature(cfeature.BORDERS, edgecolor='black', linewidth=1)
-    
     
     # adiciona legenda 
     barra_de_cores = plt.colorbar(sombreado, 
@@ -174,7 +148,7 @@ for i in range(len(file_1.variables['time1'])):
     
     	
     # Add a title
-    plt.title('Espessura (500-1000)hPa',
+    plt.title('Umidade específica 850 hPa',
               fontweight='bold', 
               fontsize=35, 
               loc='left'
@@ -187,5 +161,5 @@ for i in range(len(file_1.variables['time1'])):
     
     #--------------------------------------------------------------------------
     # Salva imagem
-    plt.savefig(f'/home/coqueiro/ufrj/Estagio_supervisionado/imagens/espessura/espessura_{vtime1}.png', bbox_inches='tight')
-
+    plt.savefig(f'/home/coqueiro/ufrj/Estagio_supervisionado/imagens/umidade_especifica/umidade_especifica_{format(vtime1)}.png', bbox_inches='tight')
+   
