@@ -22,7 +22,7 @@ import matplotlib.colors as mcolors
 #dataset
 
 file_1 = xr.open_dataset(
-    '/home/coqueiro/Downloads/GFS_Global_0p25deg_20220910_0600.grib2.nc4'
+    '/home/coqueiro/ufrj/lapt/dados/lapt_10-12092022.grib2.nc4'
     ).metpy.parse_cf()
 
 file_1 = file_1.assign_coords(dict(
@@ -38,32 +38,32 @@ lats = file_1.latitude.sel(latitude=lat_slice).values
 lons = file_1.longitude.sel(longitude=lon_slice).values
 
 level = 850*units('hPa')
-for i in range(len(file_1.variables['time1'])):
+for i in range(len(file_1.variables['time'])):
 
     # selecionando variaveis
     u = file_1['u-component_of_wind_isobaric'].metpy.sel(
-        time = file_1.time1[i], 
+        time = file_1.time[i], 
         vertical=level, 
         latitude=lat_slice, 
         longitude=lon_slice
         ).metpy.unit_array.squeeze()
     
     v = file_1['v-component_of_wind_isobaric'].metpy.sel(
-        time = file_1.time1[i], 
+        time = file_1.time[i], 
         vertical=level, 
         latitude=lat_slice, 
         longitude=lon_slice
         ).metpy.unit_array.squeeze()
     
     q = file_1.Specific_humidity_isobaric.metpy.sel(
-        time = file_1.time1[i], 
+        time = file_1.time[i], 
         vertical=level, 
         latitude=lat_slice, 
         longitude=lon_slice
         ).metpy.unit_array.squeeze()* 1e3
     
     #data
-    vtime1 = file_1.time1.data[i].astype('datetime64[ms]').astype('O')
+    vtime = file_1.time.data[i].astype('datetime64[ms]').astype('O')
 
     # ============================================================================ #
     # Colorbar
@@ -116,7 +116,7 @@ for i in range(len(file_1.variables['time1'])):
     
     # corrente de jato
     sombreado = ax.contourf(lons, lats, q, cmap = cmap, levels = clevs, extend='both')
-    ax.streamplot(lons, lats, u, v, density=[6,6], linewidth=1.5, color='black', transform=ccrs.PlateCarree())
+    ax.streamplot(lons, lats, u, v, density=[4,4], linewidth=2, arrowsize=2.5, color='black', transform=ccrs.PlateCarree())
     
     #adicionando shapefile
     shapefile = list(
@@ -134,8 +134,8 @@ for i in range(len(file_1.variables['time1'])):
         )
     
     # adiciona continente e bordas
-    ax.coastlines(resolution='10m', color='black', linewidth=1)
-    ax.add_feature(cfeature.BORDERS, edgecolor='black', linewidth=1)
+    ax.coastlines(resolution='10m', color='black', linewidth=3)
+    ax.add_feature(cfeature.BORDERS, edgecolor='black', linewidth=3)
     
     # adiciona legenda 
     barra_de_cores = plt.colorbar(sombreado, 
@@ -155,11 +155,11 @@ for i in range(len(file_1.variables['time1'])):
               )
     
     #previsao
-    #plt.title('Valid time1: {}'.format(vtime1), fontsize=35, loc='right')
+    #plt.title('Valid time: {}'.format(vtime), fontsize=35, loc='right')
     #analise
-    plt.title('Análise: {}'.format(vtime1), fontsize=35, loc='right')
+    plt.title('Análise: {}'.format(vtime), fontsize=35, loc='right')
     
     #--------------------------------------------------------------------------
     # Salva imagem
-    plt.savefig(f'/home/coqueiro/ufrj/Estagio_supervisionado/imagens/umidade_especifica/umidade_especifica_{format(vtime1)}.png', bbox_inches='tight')
+    plt.savefig(f'/home/coqueiro/ufrj/Estagio_supervisionado/imagens/umidade_especifica/umidade_especifica_{format(vtime)}.png', bbox_inches='tight')
    

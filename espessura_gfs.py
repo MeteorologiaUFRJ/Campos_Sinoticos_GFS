@@ -159,8 +159,8 @@ for i in range(len(file_1.variables['time1'])):
     # adiciona mascara de terra
     ax.add_feature(cfeature.LAND)
     # adiciona continente e bordas
-    ax.coastlines(resolution='10m', color='black', linewidth=1)
-    ax.add_feature(cfeature.BORDERS, edgecolor='black', linewidth=1)
+    ax.coastlines(resolution='10m', color='black', linewidth=3)
+    ax.add_feature(cfeature.BORDERS, edgecolor='black', linewidth=3)
     
     
     # adiciona legenda 

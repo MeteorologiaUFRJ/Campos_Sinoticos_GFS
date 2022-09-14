@@ -20,9 +20,8 @@ from datetime import datetime, timedelta  # basicas datas e tipos de tempo
 import cmocean
 
 #dataset
-
 file_1 = xr.open_dataset(
-    '/home/coqueiro/Downloads/GFS_Global_0p25deg_20220910_0600.grib2.nc4'
+    '/home/coqueiro/ufrj/lapt/dados/lapt_10-12092022.grib2.nc4'
     ).metpy.parse_cf()
 
 file_1 = file_1.assign_coords(dict(
@@ -40,18 +39,18 @@ lons = file_1.longitude.sel(longitude=lon_slice).values
 #seta as variaveis
 level = 250 * units('hPa')
 
-for i in range(len(file_1.variables['time1'])):
+for i in range(len(file_1.variables['time'])):
     
     
     u = file_1['u-component_of_wind_isobaric'].metpy.sel(
-        time = file_1.time1[i], 
+        time = file_1.time[i], 
         vertical=level, 
         latitude=lat_slice, 
         longitude=lon_slice
         ).metpy.unit_array.squeeze()
     
     v = file_1['v-component_of_wind_isobaric'].metpy.sel(
-        time = file_1.time1[i], 
+        time = file_1.time[i], 
         vertical=level, 
         latitude=lat_slice, 
         longitude=lon_slice
@@ -60,7 +59,7 @@ for i in range(len(file_1.variables['time1'])):
     mag = np.sqrt(u**2+v**2)
     
     #data
-    vtime = file_1.time1.data[i].astype('datetime64[ms]').astype('O')
+    vtime = file_1.time.data[i].astype('datetime64[ms]').astype('O')
     
     # escolha o tamanho do plot em polegadas (largura x altura)
     plt.figure(figsize=(25,25))
@@ -107,8 +106,9 @@ for i in range(len(file_1.variables['time1'])):
                   lats, 
                   u, 
                   v, 
-                  density=[6,6], 
-                  linewidth=1.5, 
+                  density=[4,4], 
+                  linewidth=2, 
+                  arrowsize=2.5,
                   color='black', 
                   transform=ccrs.PlateCarree())
     
@@ -128,8 +128,8 @@ for i in range(len(file_1.variables['time1'])):
         )
     
     # adiciona continente e bordas
-    ax.coastlines(resolution='10m', color='black', linewidth=1)
-    ax.add_feature(cfeature.BORDERS, edgecolor='black', linewidth=1)
+    ax.coastlines(resolution='10m', color='black', linewidth=3)
+    ax.add_feature(cfeature.BORDERS, edgecolor='black', linewidth=3)
     # adiciona mascara de terra
     ax.add_feature(cfeature.LAND)
     
@@ -144,7 +144,7 @@ for i in range(len(file_1.variables['time1'])):
     barra_de_cores.ax.tick_params(labelsize=font_size)
     
     # Add a title
-    plt.title('Corrente de jato - 300 hPa',
+    plt.title('Corrente de jato (m/s) - 300 hPa',
               fontweight='bold', 
               fontsize=35, 
               loc='left'

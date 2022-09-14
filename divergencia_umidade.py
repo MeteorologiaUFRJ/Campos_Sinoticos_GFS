@@ -22,7 +22,7 @@ import cmocean
 #dataset
 
 file_1 = xr.open_dataset(
-    '/home/coqueiro/Downloads/GFS_Global_0p25deg_20220910_0600.grib2.nc4'
+    '/home/coqueiro/ufrj/lapt/dados/lapt_10-12092022.grib2.nc4'
     ).metpy.parse_cf()
 
 file_1 = file_1.assign_coords(dict(
@@ -44,8 +44,8 @@ level = 1000 * units('hPa')
 
 # intevalos da divergencia - umidade
 divq_min = -2.
-divq_max = 2.
-n_levs = 10 # numero de intervalos
+divq_max = 0.
+n_levs = 0.25 # numero de intervalos
 divlevs = np.round(np.linspace(divq_min, divq_max, n_levs), 1)
 
 # lista de cores, em ordem crescete. RGBA
@@ -64,9 +64,9 @@ norm = mcolors.BoundaryNorm(divlevs, cmap.N) # util para o PCOLORMESH, CONTOURF 
 dx, dy = mpcalc.lat_lon_grid_deltas(lons, lats)
 
 
-for i in range(len(file_1.variables['time1'])):
+for i in range(len(file_1.variables['time'])):
     args = dict(
-        time = file_1.time1[i] ,
+        time = file_1.time[i] ,
         vertical=level,
         latitude=lat_slice,
         longitude=lon_slice
@@ -77,7 +77,7 @@ for i in range(len(file_1.variables['time1'])):
     q = file_1.Specific_humidity_isobaric.metpy.sel(**args).metpy.unit_array.squeeze()
     
     #data
-    vtime1 = file_1.time1.data[i].astype('datetime64[ms]').astype('O')
+    vtime = file_1.time.data[i].astype('datetime64[ms]').astype('O')
 
     divergencia = mpcalc.divergence(u, v, dx=dx, dy=dy, x_dim=- 1, y_dim=- 2)
     divergencia_umidade = divergencia * q * 1e6
@@ -107,13 +107,13 @@ for i in range(len(file_1.variables['time1'])):
     sombreado = ax.contourf(lons, 
                             lats, 
                             divergencia_umidade, 
-                            cmap = cmap, 
+                            cmap = 'Greens', 
                             levels = divlevs, 
-                            extend = 'neither'
+                            extend = 'min'
                             )
     
 
-    ax.streamplot(lons, lats, u, v, density=[3,3], linewidth=1.5, color='black', transform=ccrs.PlateCarree())
+    ax.streamplot(lons, lats, u, v, density=[4,4], linewidth=2, arrowsize=2.5, color='black', transform=ccrs.PlateCarree())
     
     
     shapefile = list(
@@ -130,8 +130,8 @@ for i in range(len(file_1.variables['time1'])):
         )
     
     # adiciona continente e bordas
-    ax.coastlines(resolution='10m', color='black', linewidth=1)
-    ax.add_feature(cfeature.BORDERS, edgecolor='black', linewidth=1)
+    ax.coastlines(resolution='10m', color='black', linewidth=3)
+    ax.add_feature(cfeature.BORDERS, edgecolor='black', linewidth=3)
     # adiciona mascara de terra
     ax.add_feature(cfeature.LAND)
     
@@ -147,18 +147,18 @@ for i in range(len(file_1.variables['time1'])):
     barra_de_cores.ax.set_xticks(divlevs)
     
     # Add a title
-    plt.title('Divergencia de umidade 1000hPa',
+    plt.title('Divergencia de umidade (1/s) - 1000hPa',
               fontweight='bold', 
               fontsize=35, 
               loc='left'
               )
     
     #previsao
-    #plt.title('Valid time1: {}'.format(vtime1), fontsize=35, loc='right')
+    #plt.title('Valid time: {}'.format(vtime), fontsize=35, loc='right')
     #analise
-    plt.title('Análise: {}'.format(vtime1), fontsize=35, loc='right')
+    plt.title('Análise: {}'.format(vtime), fontsize=35, loc='right')
     
     #--------------------------------------------------------------------------
     # Salva imagem
-    plt.savefig(f'/home/coqueiro/ufrj/Estagio_supervisionado/imagens/divergencia_umidade/divergencia_umidade_{vtime1}.png', bbox_inches='tight')
+    plt.savefig(f'/home/coqueiro/ufrj/Estagio_supervisionado/imagens/divergencia_umidade/divergencia_umidade_{vtime}.png', bbox_inches='tight')
 

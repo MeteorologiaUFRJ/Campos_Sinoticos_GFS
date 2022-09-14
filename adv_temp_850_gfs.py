@@ -182,8 +182,8 @@ for i in range(len(file_1.variables['time1'])):
     
     # adiciona continente e bordas
     ax.add_feature(cfeature.LAND)
-    ax.coastlines(resolution='10m', color='black', linewidth=1)
-    ax.add_feature(cfeature.BORDERS, edgecolor='black', linewidth=1)
+    ax.coastlines(resolution='10m', color='black', linewidth=3)
+    ax.add_feature(cfeature.BORDERS, edgecolor='black', linewidth=3)
     
     # adiciona legenda 
     barra_de_cores = plt.colorbar(sombreado, 
