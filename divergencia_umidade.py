@@ -43,18 +43,18 @@ level = 1000 * units('hPa')
 # CRIANDO O CMAP E NORM PARA A COLORBAR
 
 # intevalos da divergencia - umidade
-divq_min = -2.
+divq_min = -1.
 divq_max = 0.
-n_levs = 0.25 # numero de intervalos
+n_levs = 10 # numero de intervalos
 divlevs = np.round(np.linspace(divq_min, divq_max, n_levs), 1)
 
 # lista de cores, em ordem crescete. RGBA
-colors = ['mediumseagreen', 'mediumaquamarine', 'palegreen', 'white', 'wheat', 'gold', 'goldenrod']
+colors = ['mediumseagreen', 'mediumaquamarine', 'palegreen', 'white']
 
 # cria um novo cmap a partir do pre-existente
 cmap = mcolors.LinearSegmentedColormap.from_list(
     'Custom cmap', colors, divlevs.shape[0] - 1)
-cmap.set_over('darkgoldenrod')
+cmap.set_over('white')
 cmap.set_under("seagreen")
 
 # nromaliza com base nos intervalos
@@ -77,7 +77,7 @@ for i in range(len(file_1.variables['time'])):
     q = file_1.Specific_humidity_isobaric.metpy.sel(**args).metpy.unit_array.squeeze()
     
     #data
-    vtime = file_1.time.data[i].astype('datetime64[ms]').astype('O')
+    vtime1 = file_1.time.data[i].astype('datetime64[ms]').astype('O')
 
     divergencia = mpcalc.divergence(u, v, dx=dx, dy=dy, x_dim=- 1, y_dim=- 2)
     divergencia_umidade = divergencia * q * 1e6
@@ -147,16 +147,16 @@ for i in range(len(file_1.variables['time'])):
     barra_de_cores.ax.set_xticks(divlevs)
     
     # Add a title
-    plt.title('Divergencia de umidade (1/s) - 1000hPa',
+    plt.title('Divergencia de umidade em 1000 hPa',
               fontweight='bold', 
-              fontsize=35, 
+              fontsize=30, 
               loc='left'
               )
     
     #previsao
-    #plt.title('Valid time: {}'.format(vtime), fontsize=35, loc='right')
+    #plt.title('Valid time1: {}'.format(vtime1), fontsize=35, loc='right')
     #analise
-    plt.title('Análise: {}'.format(vtime), fontsize=35, loc='right')
+    plt.title('Análise: {}'.format(vtime1), fontsize=30, loc='right')
     
     #--------------------------------------------------------------------------
     # Salva imagem
