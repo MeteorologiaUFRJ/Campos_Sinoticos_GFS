@@ -10,7 +10,6 @@ Passos para baixar os dados de análise:
 6. Ajeite as latitude e longitudes de sua preferencia
 7. Escolha o periodo de tempo para análise
 8. Selecione a opção "netcdf4" em >>> Output format <<<
-9. Marque a opção "Add 2D Lat/Lon to file" em >>> CF compilance <<<
 
 
 Passos para baixar os dados de análise:
@@ -23,7 +22,6 @@ Passos para baixar os dados de análise:
 6. Ajeite as latitude e longitudes de sua preferencia
 7. Escolha o periodo de tempo para análise
 8. Selecione a opção "netcdf4" em >>> Output format <<<
-9. Marque a opção "Add 2D Lat/Lon to file" em >>> CF compilance <<<
 
 Após baixar os dados, coloquem os caminhos deles no "file_1"
 É necessário alterar o shapefile
