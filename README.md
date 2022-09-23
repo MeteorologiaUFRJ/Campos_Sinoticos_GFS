@@ -4,7 +4,7 @@ ________________________________________________________________________________
 #### Bibliotecas necessária ####
 
 **Caso tenha o Anaconda dê o comandando seguinte no terminal: 
-conda install -c conda-forge xarray netCDF4 cartopy matplotlib numpy cmocean metpy
+#### conda install -c conda-forge xarray netCDF4 cartopy matplotlib numpy cmocean metpy ####
 
 **Caso não tenha dê o pip install:
 pip install DateTime
@@ -15,6 +15,15 @@ pip install matplotlib
 pip install numpy 
 pip install cmocean 
 pip install metpy
+____________________________________________________________________________________________________________________________
+
+#### Recortando os dados ####
+
+Selecione as latitudes e as latitudes desejadas
+Depois selecione o intervalo de tempo, onde:
+Stride: 4 - intervalos de 12h em 12h
+Stride: 2 - intervalos de 6h em 6h
+
 ____________________________________________________________________________________________________________________________
 
 ##### Passos para baixar os dados de análise: #####
