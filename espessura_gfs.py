@@ -23,7 +23,7 @@ import cmocean
 #dataset
 
 file_1 = xr.open_dataset(
-    '/home/coqueiro/Downloads/GFS_Global_0p25deg_20220910_0600.grib2.nc4'
+    '/home/coqueiro/Downloads/previsao_24-25_0922.nc4'
     ).metpy.parse_cf()
 
 file_1 = file_1.assign_coords(dict(
@@ -31,7 +31,7 @@ file_1 = file_1.assign_coords(dict(
     ).sortby('longitude')
 
 #extent
-lon_slice = slice(-120., 10.)
+lon_slice = slice(-90., 10.)
 lat_slice = slice(10., -70.)
 
 #pega as lat/lon
@@ -102,8 +102,8 @@ for i in range(len(file_1.variables['time1'])):
     cmap.set_under('#28000a')
     
     # intevalos da espessura
-    intervalo_min2 = 4900
-    intervalo_max2 = 5900
+    intervalo_min2 = 5000
+    intervalo_max2 = 5825
     interval_2 = 25             # de quanto em quanto voce quer que varie
     levels_2 = np.arange(intervalo_min2, intervalo_max2, interval_2)
     
@@ -129,18 +129,18 @@ for i in range(len(file_1.variables['time1'])):
                           lats, 
                           pnmm, 
                           colors='black', 
-                          linewidths=0.8, 
+                          linewidths=2, 
                           levels=levels_1
                           )
     
     ax.clabel(contorno_1, 
               inline = 1, 
               inline_spacing = 1, 
-              fontsize=15, 
+              fontsize=20, 
               fmt = '%3.0f', 
               colors= 'black'
               )
-
+    
     
     #adicionando shapefile
     shapefile = list(
@@ -162,6 +162,25 @@ for i in range(len(file_1.variables['time1'])):
     ax.coastlines(resolution='10m', color='black', linewidth=3)
     ax.add_feature(cfeature.BORDERS, edgecolor='black', linewidth=3)
     
+    # # inset axes....
+    # axins = ax.inset_axes([0.58, 0.58, 0.4, 0.4])
+    # axins.contourf(sombreado, cmap=cmap, origin="image")
+    # contorno_2 = axins.contour(contorno_1, colors='black', origin="image")
+    # axins.clabel(contorno_2, 
+    #           inline = 1, 
+    #           inline_spacing = 1, 
+    #           fontsize=15, 
+    #           fmt = '%3.0f', 
+    #           colors= 'black'
+    #           )
+    
+    # # sub region of the original image
+    # x1, x2, y1, y2 = -55, -40, -35 , -15
+    # axins.set_xlim(x1, x2)
+    # axins.set_ylim(y1, y2)
+    # axins.set_xticklabels([])
+    # axins.set_yticklabels([])
+    # ax.indicate_inset_zoom(axins, edgecolor="black")
     
     # adiciona legenda 
     barra_de_cores = plt.colorbar(sombreado, 
@@ -181,7 +200,7 @@ for i in range(len(file_1.variables['time1'])):
               )
     
     #previsao
-    #plt.title('Valid time1: {}'.format(vtime1), fontsize=35, loc='right')
+    #plt.title('Valid time: {}'.format(vtime), fontsize=35, loc='right')
     #analise
     plt.title('Análise: {}'.format(vtime1), fontsize=35, loc='right')
     
