@@ -38,7 +38,7 @@ Stride: 2 - intervalos de 6h em 6h
 
 ____________________________________________________________________________________________________________________________
 
-##### Passos para baixar os dados de análise: #####
+##### Passos para baixar os dados de previsão: #####
 
 1. Baixe os seus dados de previsão aqui:https://thredds.ucar.edu/thredds/catalog/grib/NCEP/GFS/Global_0p25deg/catalog.html
 2. Escolha a ultima rodada de sua preferênciaEscolha o dia das análises 
