@@ -50,9 +50,9 @@ ________________________________________________________________________________
 7. Selecione o periodo de tempo para análise em Time subset (Stride: 4 - intervalos de 12h em 12h e Stride: 2 - intervalos de 6h em 6h)
 8. Selecione a opção "netcdf4" em Output format
 ____________________________________________________________________________________________________________________________
-##### Processos para rodar o script: #####
-Após baixar os dados, coloquem os caminhos deles no "file_1 = xr.open_dataset(
-    '/home/coqueiro/Downloads/GFS_Global_0p25deg_20220910_0600.grib2.nc4'
+##### Passos para utilizar o script: #####
+Após o download do dado ajuste o caminho até o diretório onde está o dado no seu computador e substitua em:
+"file_1 = xr.open_dataset('/diretorio-do-dado/GFS_Global_0p25deg_20220910_0600.grib2.nc4'
     ).metpy.parse_cf()"
     
 É necessário alterar o shapefile, baixe o arquivo "BR_UF_2021.zip", logo após substitua o caminho do shapefile em: shapefile = list(
