@@ -21,7 +21,7 @@ import cmocean
 
 #dataset
 file_1 = xr.open_dataset(
-    '/home/coqueiro/ufrj/lapt/dados/lapt_10-12092022.grib2.nc4'
+    '/home/coqueiro/Downloads/GFS_Global_0p25deg_ana_20221006_1200.grib2.nc4'
     ).metpy.parse_cf()
 
 file_1 = file_1.assign_coords(dict(
@@ -29,7 +29,7 @@ file_1 = file_1.assign_coords(dict(
     ).sortby('longitude')
 
 #extent
-lon_slice = slice(-120., 10.)
+lon_slice = slice(-90., 10.)
 lat_slice = slice(10., -70.)
 
 #pega as lat/lon
@@ -37,7 +37,17 @@ lats = file_1.latitude.sel(latitude=lat_slice).values
 lons = file_1.longitude.sel(longitude=lon_slice).values
 
 #seta as variaveis
-level = 250 * units('hPa')
+level = 200 * units('hPa')
+
+# # intevalos da divergencia - umidade
+# divq_min = 0
+# divq_max = np.amax(np.array(divergencia).
+# n_levs = 10 # numero de intervalos
+# divlevs = np.round(np.linspace(divq_min, divq_max, n_levs), 1)
+    
+
+# variaveis repetidas em cada loop
+dx, dy = mpcalc.lat_lon_grid_deltas(lons, lats)
 
 for i in range(len(file_1.variables['time'])):
     
@@ -57,10 +67,16 @@ for i in range(len(file_1.variables['time'])):
         ).metpy.unit_array.squeeze()
     
     mag = np.sqrt(u**2+v**2)
-    
+
     #data
     vtime = file_1.time.data[i].astype('datetime64[ms]').astype('O')
     
+    # intevalos da geopotencial
+    intervalo_min1 = 30
+    intervalo_max1 = 70
+    interval_1 = 2              # de quanto em quanto voce quer que varie
+    levels_1 = np.arange(intervalo_min1, intervalo_max1, interval_1)
+
     # escolha o tamanho do plot em polegadas (largura x altura)
     plt.figure(figsize=(25,25))
     
@@ -82,7 +98,7 @@ for i in range(len(file_1.variables['time'])):
     
     # intevalos da corrente de jato
     intervalo_min3 = 30
-    intervalo_max3 = 100
+    intervalo_max3 = 110
     interval_3 = 10            # de quanto em quanto voce quer que varie
     levels_3 = np.arange(intervalo_min3, intervalo_max3, interval_3)
     
@@ -111,6 +127,7 @@ for i in range(len(file_1.variables['time'])):
                   arrowsize=2.5,
                   color='black', 
                   transform=ccrs.PlateCarree())
+    
     
     #adicionando shapefile
     shapefile = list(
@@ -144,15 +161,15 @@ for i in range(len(file_1.variables['time'])):
     barra_de_cores.ax.tick_params(labelsize=font_size)
     
     # Add a title
-    plt.title('Corrente de jato (m/s) - 300 hPa',
+    plt.title('Corrente de jato (m/s) - 200 hPa',
               fontweight='bold', 
               fontsize=35, 
               loc='left'
               )
     #previsao
-    #plt.title('Valid Time: {}'.format(vtime), fontsize=35, loc='right')
+    plt.title('Valid Time: {}'.format(vtime), fontsize=35, loc='right')
     #analise
-    plt.title('Análise: {}'.format(vtime), fontsize=35, loc='right')
+    #plt.title('Análise: {}'.format(vtime), fontsize=35, loc='right')
     
     
     #--------------------------------------------------------------------------

@@ -20,7 +20,7 @@ import cmocean
 
 #dataset
 file_1 = xr.open_dataset(
-    '/home/coqueiro/Downloads/GFS_Global_0p25deg_20220910_0600.grib2.nc4'
+    '/home/coqueiro/Downloads/prev.nc4'
     ).metpy.parse_cf()
 
 file_1 = file_1.assign_coords(dict(
@@ -28,7 +28,7 @@ file_1 = file_1.assign_coords(dict(
     ).sortby('longitude')
 
 #seleciona as fatias de lat e lon
-lon_slice = slice(-120., 10.)
+lon_slice = slice(-90., 10.)
 lat_slice = slice(10., -70.)
 
 #pega as lat/lon
@@ -38,31 +38,31 @@ lons = file_1.longitude.sel(longitude=lon_slice).values
 #seleciona o nivel em hPa
 level = 1000 * units('hPa')
 
-for i in range(len(file_1.variables['time1'])):
+for i in range(len(file_1.variables['time3'])):
     
     
     u = file_1['u-component_of_wind_isobaric'].metpy.sel(
-        time = file_1.time1[i], 
+        time3 = file_1.time3[i], 
         vertical=level, 
         latitude=lat_slice, 
         longitude=lon_slice
         ).metpy.unit_array.squeeze()
     
     v = file_1['v-component_of_wind_isobaric'].metpy.sel(
-        time = file_1.time1[i], 
+        time3 = file_1.time3[i], 
         vertical=level, 
         latitude=lat_slice, 
         longitude=lon_slice
         ).metpy.unit_array.squeeze()
     
     pnmm = file_1.Pressure_reduced_to_MSL_msl.metpy.sel(
-        time = file_1.time1[i], 
+        time3 = file_1.time3[i], 
         latitude=lat_slice, 
         longitude=lon_slice
         ).metpy.unit_array.squeeze()*0.01*units.hPa/units.Pa
     
     #data
-    vtime = file_1.time1.data[i].astype('datetime64[ms]').astype('O')
+    vtime3 = file_1.time3.data[i].astype('datetime64[ms]').astype('O')
     
     dx, dy = mpcalc.lat_lon_grid_deltas(lons, lats)
     
@@ -93,9 +93,9 @@ for i in range(len(file_1.variables['time1'])):
     interval_2 = 2              # de quanto em quanto voce quer que varie
     levels_2 = np.arange(intervalo_min2, intervalo_max2, interval_2)
     
-    # intevalos da divergencia - umidade
-    intervalo_min3 = -30
-    intervalo_max3 = 1
+    # intevalos da vorticidade
+    intervalo_min3 = -20
+    intervalo_max3 = -2
     interval_3 = 2             # de quanto em quanto voce quer que varie
     levels_3 = np.arange(intervalo_min3, intervalo_max3, interval_3)
     
@@ -116,7 +116,7 @@ for i in range(len(file_1.variables['time1'])):
                           lats, 
                           pnmm, 
                           colors='black', 
-                          linewidths=0.8, 
+                          linewidths=2, 
                           levels=levels_2
                           )
     
@@ -163,11 +163,11 @@ for i in range(len(file_1.variables['time1'])):
               loc='left'
               )
     #previsao
-    #plt.title('Valid Time: {}'.format(vtime), fontsize=35, loc='right')
+    plt.title('Valid Time: {}'.format(vtime3), fontsize=35, loc='right')
     #analise
-    plt.title('Análise: {}'.format(vtime), fontsize=35, loc='right')
+    #plt.title('Análise: {}'.format(vtime), fontsize=35, loc='right')
     
     
     #--------------------------------------------------------------------------
     # Salva imagem
-    plt.savefig(f'/home/coqueiro/ufrj/Estagio_supervisionado/imagens/vorticidade/vorticidade_relativa_{format(vtime)}.png', bbox_inches='tight')
+    plt.savefig(f'/home/coqueiro/ufrj/Estagio_supervisionado/imagens/vorticidade/vorticidade_relativa_{format(vtime3)}.png', bbox_inches='tight')

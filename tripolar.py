@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Wed Aug 24 18:20:34 2022
+Created on Sat Oct  8 23:17:33 2022
 
 @author: coqueiro
 """
-
 
 #importando bibliotecas
 import cartopy.crs as ccrs
@@ -21,7 +20,6 @@ from datetime import datetime, timedelta  # basicas datas e tipos de tempo
 import cmocean
 
 #dataset
-
 file_1 = xr.open_dataset(
     '/home/coqueiro/Downloads/prev.nc4'
     ).metpy.parse_cf()
@@ -30,23 +28,18 @@ file_1 = file_1.assign_coords(dict(
     longitude = (((file_1.longitude.values + 180) % 360) - 180))
     ).sortby('longitude')
 
+#
 #extent
-lon_slice = slice(-120., 10.)
+lon_slice = slice(-90., 10.)
 lat_slice = slice(15., -70.)
-lon_slice_2 = slice(-120., 10.,15)
-lat_slice_2 = slice(15., -70.,15)
 
 #pega as lat/lon
 lats = file_1.latitude.sel(latitude=lat_slice).values
 lons = file_1.longitude.sel(longitude=lon_slice).values
 
-lats_2 = file_1.latitude.sel(latitude=lat_slice_2).values
-lons_2 = file_1.longitude.sel(longitude=lon_slice_2).values
-
-
 #seta as variaveis
-level = 500 * units('hPa')
-level_3 = 1000 * units('hPa')
+level_2 = 500 * units('hPa')
+level_1 = 200 * units('hPa')
 
 # cria uma escala de cores:
 colors = ["#0000CD","#FF0000"]
@@ -59,54 +52,24 @@ for i in range(len(file_1.variables['time3'])):
     
     geopotencial = file_1.Geopotential_height_isobaric.metpy.sel(
         time3 = file_1.time3[i], 
-        vertical=level, 
+        vertical=level_2, 
         latitude=lat_slice, 
         longitude=lon_slice
         ).metpy.unit_array.squeeze()
-    
-    geopotencial_1000 = file_1.Geopotential_height_isobaric.metpy.sel(
-        time3 = file_1.time3[i], 
-        vertical=level_3, 
-        latitude=lat_slice, 
-        longitude=lon_slice
-        ).metpy.unit_array.squeeze()
-    
-    geopotencial_500 = file_1.Geopotential_height_isobaric.metpy.sel(
-        time3 = file_1.time3[i], 
-        vertical=level, 
-        latitude=lat_slice, 
-        longitude=lon_slice
-        ).metpy.unit_array.squeeze()
-    
     
     u = file_1['u-component_of_wind_isobaric'].metpy.sel(
         time3 = file_1.time3[i], 
-        vertical=level, 
+        vertical=level_1, 
         latitude=lat_slice, 
         longitude=lon_slice
         ).metpy.unit_array.squeeze()
     
     v = file_1['v-component_of_wind_isobaric'].metpy.sel(
         time3 = file_1.time3[i], 
-        vertical=level, 
+        vertical=level_1, 
         latitude=lat_slice, 
         longitude=lon_slice
         ).metpy.unit_array.squeeze()
-    
-    u_2 = file_1['u-component_of_wind_isobaric'].metpy.sel(
-        time3 = file_1.time3[i], 
-        vertical=level_3, 
-        latitude=lat_slice_2, 
-        longitude=lon_slice_2
-        ).metpy.unit_array.squeeze().to('kt')
-    
-    v_2 = file_1['v-component_of_wind_isobaric'].metpy.sel(
-        time3 = file_1.time3[i], 
-        vertical=level_3, 
-        latitude=lat_slice_2, 
-        longitude=lon_slice_2
-        ).metpy.unit_array.squeeze().to('kt')
-    
     
     pnmm = file_1.Pressure_reduced_to_MSL_msl.metpy.sel(
         time3 = file_1.time3[i], 
@@ -114,13 +77,10 @@ for i in range(len(file_1.variables['time3'])):
         longitude=lon_slice
         ).metpy.unit_array.squeeze()* 0.01 * units.hPa/units.Pa
     
+    mag = np.sqrt(u**2+v**2)
+    
     #data
     vtime3 = file_1.time3.data[i].astype('datetime64[ms]').astype('O')
-    
-    dx, dy = mpcalc.lat_lon_grid_deltas(lons, lats)
-    vorticidade = mpcalc.vorticity(u, v, dx=dx, dy=dy, x_dim=- 1, y_dim=- 2)*10**5
-    adv_vort = mpcalc.advection(vorticidade, u=u, v=v, dx=dx, dy=dy, x_dim=- 1, y_dim=- 2)*100
-    espessura = geopotencial_500 - geopotencial_1000
     
     # escolha o tamanho do plot em polegadas (largura x altura)
     plt.figure(figsize=(25,25))
@@ -148,77 +108,62 @@ for i in range(len(file_1.variables['time3'])):
     interval_2 = 2              # de quanto em quanto voce quer que varie
     levels_2 = np.arange(intervalo_min2, intervalo_max2, interval_2)
     
-    # intevalos da adv vorticidade
-    intervalo_min3 = -1.6
-    intervalo_max3 = 0
-    interval_3 = 0.10              # de quanto em quanto voce quer que varie
+    # intevalos do jato
+    intervalo_min3 = 30
+    intervalo_max3 = 110
+    interval_3 = 10              # de quanto em quanto voce quer que varie
     levels_3 = np.arange(intervalo_min3, intervalo_max3, interval_3)
     
     # intevalos da geopotencial
-    intervalo_min1 = np.amin(np.array(geopotencial_500))
-    intervalo_max1 = np.amax(np.array(geopotencial_500))
+    intervalo_min1 = np.amin(np.array(geopotencial))
+    intervalo_max1 = np.amax(np.array(geopotencial))
     interval_1 = 50              # de quanto em quanto voce quer que varie
     levels_1 = np.arange(intervalo_min1, intervalo_max1, interval_1)
+
     
-    
-    # adiciona mascara de terra
-    ax.add_feature(cfeature.LAND)
-    
-    # plota a imagem adv vorticidade
-    sombreado = ax.contourf(lons, 
-                            lats, 
-                            adv_vort, 
-                            cmap='gist_heat', 
-                            levels = levels_3, 
-                            extend = 'min'
-                            )
-    
-    
-    # # plota a imagem pressao
-    # contorno_1 = ax.contour(lons,
-    #                       lats, 
-    #                       pnmm, 
-    #                       colors='black', 
-    #                       linewidths=1, 
-    #                       levels=levels_2
-    #                       )
-    
-    # ax.clabel(contorno_1, 
-    #           inline = 1, 
-    #           inline_spacing = 1, 
-    #           fontsize=20, 
-    #           fmt = '%3.0f', 
-    #           colors= 'black'
-    #           )
-    
-    # plota a imagem geopotencial
-    contorno_2 = ax.contour(lons,
+    # corrente de jato
+    jato = plt.contourf(lons,
+                       lats, 
+                       mag, 
+                       cmap=cmocean.cm.deep, 
+                       levels = levels_3, 
+                       extend='neither')
+
+    #plota a imagem pressao
+    pressao = ax.contour(lons,
                           lats, 
-                          geopotencial, 
-                          cmap=cmap, 
-                          linewidths=3, 
-                          levels=levels_1
+                          pnmm, 
+                          colors='black', 
+                          linewidths=2, 
+                          levels=levels_2
                           )
     
-    ax.clabel(contorno_2, 
+    ax.clabel(pressao, 
               inline = 1, 
               inline_spacing = 1, 
-              fontsize=24,
+              fontsize=20, 
               fmt = '%3.0f', 
               colors= 'black'
               )
     
-    plt.barbs(
-      lons_2,
-      lats_2,
-      u_2,
-      v_2,
-      fill_empty=True,
-      length=7,
-      sizes=dict(emptybarb=0.1, height=0.6),
-      barbcolor="black",
-      barb_increments=dict(flag=50),)
+    # plota a imagem geopotencial
+    geopot = ax.contour(lons,
+                          lats, 
+                          geopotencial,
+                          cmap=cmap, 
+                          linewidths=3, 
+                          linestyles='dashed',
+                          levels=levels_1
+                          )
     
+    # ax.clabel(geopot, 
+    #           inline = 1, 
+    #           inline_spacing = 1, 
+    #           fontsize=24,
+    #           fmt = '%3.0f', 
+    #           colors= 'black'
+    #           )
+
     #adicionando shapefile
     shapefile = list(
         shpreader.Reader(
@@ -234,11 +179,12 @@ for i in range(len(file_1.variables['time3'])):
         )
     
     # adiciona continente e bordas
+    ax.add_feature(cfeature.LAND)
     ax.coastlines(resolution='10m', color='black', linewidth=3)
     ax.add_feature(cfeature.BORDERS, edgecolor='black', linewidth=3)
     
     # adiciona legenda 
-    barra_de_cores = plt.colorbar(sombreado, 
+    barra_de_cores = plt.colorbar(jato, 
                                   orientation = 'horizontal', 
                                   pad=0.04, 
                                   fraction=0.04
@@ -246,11 +192,11 @@ for i in range(len(file_1.variables['time3'])):
     font_size = 20 # Adjust as appropriate.
     barra_de_cores.ax.tick_params(labelsize=font_size)
     
-    	
+   
     # Add a title
-    plt.title('Adv de vort relativa (1/s²) - 500 hPa',
+    plt.title('Pnmm (black), Geop.500 (red/blue), Jato 200 (shaded)',
               fontweight='bold', 
-              fontsize=35, 
+              fontsize=28, 
               loc='left'
               )
     
@@ -261,4 +207,4 @@ for i in range(len(file_1.variables['time3'])):
     
     #--------------------------------------------------------------------------
     # Salva imagem
-    plt.savefig(f'/home/coqueiro/ufrj/Estagio_supervisionado/imagens/adv_vorticidade/adveccao_de_vorticidade_{vtime3}.png', bbox_inches='tight')
+    plt.savefig(f'/home/coqueiro/ufrj/Estagio_supervisionado/imagens/tripolar/tripolar_{vtime3}.png', bbox_inches='tight')
