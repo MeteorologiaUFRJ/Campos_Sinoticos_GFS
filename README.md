@@ -33,7 +33,7 @@ ________________________________________________________________________________
 ![image](https://user-images.githubusercontent.com/91283739/189402418-94e9d495-ffae-4f84-a3fd-ef30f40b3b36.png)
 4. Selecione as variaveis em >>> reftime time isobaric latitude longitude <<<
 5. Selecione a variavel "Pressure reduced to MSL @ Mean sea level" em >>> reftime time isobaric1 latitude longitude <<<
-6. Selecione as latitude e longitudes de sua preferência em Horizontal subset
+6. Selecione as latitudes e longitudes de sua preferência em Horizontal subset
 7. Selecione o periodo de tempo para análise em Time subset (Stride: 4 - intervalos de 12h em 12h e Stride: 2 - intervalos de 6h em 6h)
 8. Selecione a opção "netcdf4" em Output format
 ____________________________________________________________________________________________________________________________
@@ -46,7 +46,7 @@ ________________________________________________________________________________
 ![image](https://user-images.githubusercontent.com/91283739/189402173-d35dfdf3-7fc4-4e59-be96-0634c9da36ad.png)
 4. Selecione as variaveis em >>> reftime time isobaric latitude longitude <<<
 5. Selecione a variavel "Pressure reduced to MSL @ Mean sea level" em >>> reftime time isobaric1 latitude longitude <<<
-6. Selecione as latitude e longitudes de sua preferência em Horizontal subset
+6. Selecione as latitudes e longitudes de sua preferência em Horizontal subset
 7. Selecione o periodo de tempo para análise em Time subset (Stride: 4 - intervalos de 12h em 12h e Stride: 2 - intervalos de 6h em 6h)
 8. Selecione a opção "netcdf4" em Output format
 ____________________________________________________________________________________________________________________________
