@@ -14,13 +14,12 @@ import metpy.calc as mpcalc
 from metpy.units import units
 import numpy as np
 import xarray as xr
-import cartopy.io.shapereader as shpreader # Import shapefiles
-from datetime import datetime, timedelta  # basicas datas e tipos de tempo
+import cartopy.io.shapereader as shpreader
+from datetime import datetime, timedelta 
 import cmocean
 import matplotlib.colors as mcolors
 
 #dataset
-
 file_1 = xr.open_dataset(
     '/home/bmiranda/Desktop/ES2/bia-isa/dados/GFS_Global_0p25deg_ana_20221011_1200.grib2.nc4'
     ).metpy.parse_cf()
@@ -55,7 +54,7 @@ for i in range(len(file_1.variables['time'])):
         longitude=lon_slice
         ).metpy.unit_array.squeeze()
     
-    w = file_1['Vertical_velocity_pressure_isobaric'].metpy.sel(
+    omega = file_1['Vertical_velocity_pressure_isobaric'].metpy.sel(
         time = file_1.time[i], 
         vertical=level, 
         latitude=lat_slice, 
@@ -92,15 +91,15 @@ for i in range(len(file_1.variables['time'])):
     interval_1 = 0.2              # de quanto em quanto voce quer que varie
     levels_1 = np.arange(intervalo_min1, intervalo_max1, interval_1)
     
-    # plota a imagem divergencia
+    #plot
     sombreado = ax.contourf(lons, 
                             lats, 
-                            w, 
+                            omega, 
                             cmap = 'inferno', 
                             levels = levels_1, 
                             extend = 'min'
                             )
-
+    #linhas de corrente
     ax.streamplot(lons, lats, u, v, density=[3,3], linewidth=1.5, color='black', transform=ccrs.PlateCarree())
 
     #adicionando shapefile
@@ -121,7 +120,7 @@ for i in range(len(file_1.variables['time'])):
     ax.coastlines(resolution='10m', color='black', linewidth=3)
     ax.add_feature(cfeature.BORDERS, edgecolor='black', linewidth=3)
     
-    #adiciona legenda 
+    #legenda 
     barra_de_cores = plt.colorbar(sombreado, 
                                   orientation = 'horizontal', 
                                   pad=0.04, 
@@ -133,9 +132,9 @@ for i in range(len(file_1.variables['time'])):
 
     
     # Add a title
-    plt.title('Mov. vertical (Pa/s) e linhas de corrente em 500 hPa',
+    plt.title('Mov. vertical (Pa/s) em 500 hPa',
               fontweight='bold', 
-              fontsize=27, 
+              fontsize=30, 
               loc='left'
               )
     
@@ -143,4 +142,4 @@ for i in range(len(file_1.variables['time'])):
     #plt.title('Valid time: {}'.format(vtime), fontsize=30, loc='right')
     #analise
     plt.title('Análise: {}'.format(vtime), fontsize=30, loc='right')
-    plt.savefig(f'mov_vert-linhas-corrente-500hpa_{vtime}.png', bbox_inches='tight')
+    plt.savefig(f'mov_vert-500hpa_{vtime}.png', bbox_inches='tight')
