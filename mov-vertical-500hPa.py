@@ -134,12 +134,12 @@ for i in range(len(file_1.variables['time'])):
     # Add a title
     plt.title('Mov. vertical (Pa/s) em 500 hPa',
               fontweight='bold', 
-              fontsize=30, 
+              fontsize=35, 
               loc='left'
               )
     
     #previsao
-    #plt.title('Valid time: {}'.format(vtime), fontsize=30, loc='right')
+    #plt.title('Valid time: {}'.format(vtime), fontsize=35, loc='right')
     #analise
-    plt.title('Análise: {}'.format(vtime), fontsize=30, loc='right')
+    plt.title('Análise: {}'.format(vtime), fontsize=35, loc='right')
     plt.savefig(f'mov_vert-500hpa_{vtime}.png', bbox_inches='tight')
