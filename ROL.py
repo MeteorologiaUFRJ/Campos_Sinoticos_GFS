@@ -81,8 +81,8 @@ for i in range(len(file_1.variables['time2'])):
     levels_2 = np.arange(intervalo_min2, intervalo_max2, interval_2)
     
     # intevalos do rol
-    intervalo_min3 = np.amin(np.array(rol))
-    intervalo_max3 = np.amax(np.array(rol))
+    intervalo_min3 = 350                       #np.amin(np.array(rol))
+    intervalo_max3 = 400                       #np.amax(np.array(rol))
     interval_3 = 20             # de quanto em quanto voce quer que varie
     levels_3 = np.arange(intervalo_min3, intervalo_max3, interval_3)
     
