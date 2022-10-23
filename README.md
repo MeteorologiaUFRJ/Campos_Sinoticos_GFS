@@ -6,7 +6,7 @@ ________________________________________________________________________________
 #### Caso utilize o ambiente Anaconda, instale as bibliotecas necessárias da seguinte forma: ####
 conda install -c conda-forge xarray netCDF4 cartopy matplotlib numpy cmocean metpy
 
-#### Do contrário, as bibliotecas podem ser instaladas da seguinte forma: ####
+#### Do contrário, as bibliotecas podem ser instaladas a partir dos seguintes comandos: ####
 
 pip install DateTime
 
