@@ -14,7 +14,7 @@ pip install xarray
 
 pip install netCDF4
 
-pip install cartopy
+conda install -c conda-forge cartopy
 
 pip install matplotlib
 
