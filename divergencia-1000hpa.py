@@ -22,51 +22,59 @@ import matplotlib.colors as mcolors
 
 #dataset
 
-file_1 = xr.open_dataset('/home/cliente/estagio2/dados/GFS_Global_0p5deg_20220919_0000.grib2.nc4').metpy.parse_cf()
+file_1 = xr.open_dataset('/home/ladsin/Downloads/GFS_analise_11_13.nc4').metpy.parse_cf()
 
 file_1 = file_1.assign_coords(dict(
     longitude = (((file_1.longitude.values + 180) % 360) - 180))
     ).sortby('longitude')
 
 #extent
-lon_slice = slice(-90., -10.)
-lat_slice = slice(10., -70.)
+lon_0 = -120.
+lon_1 = -20.
+lat_0 = 10.
+lat_1 = -55.
+
+lon_slice = slice(lon_0, lon_1)
+lat_slice = slice(lat_0, lat_1)
 
 #pega as lat/lon
 lats = file_1.latitude.sel(latitude=lat_slice).values
 lons = file_1.longitude.sel(longitude=lon_slice).values
 
 #seta as variaveis
-level_1 = 1000 * units('hPa')
+level_1 = 850 * units('hPa')
 
 # CRIANDO O CMAP E NORM PARA A COLORBAR
 
 # intevalos da divergencia - umidade
-divq_min = -20
-divq_max = 0.
-n_levs = 10 # numero de intervalos
-divlevs = np.round(np.linspace(divq_min, divq_max, n_levs), 1)
+divq_min = -50
+divq_max = -20
+interval_1 = 2              # de quanto em quanto voce quer que varie
+levels_1 = np.arange(divq_min, divq_max, interval_1)
 
-# lista de cores, em ordem crescete. RGBA
-colors = ['mediumseagreen', 'mediumaquamarine', 'palegreen', 'white']
+# n_levs = 1 # numero de intervalos
+# divlevs = np.round(np.linspace(divq_min, divq_max, n_levs), 1)
 
-# cria um novo cmap a partir do pre-existente
-cmap = mcolors.LinearSegmentedColormap.from_list(
-    'Custom cmap', colors, divlevs.shape[0] - 1)
-cmap.set_over('white')
-cmap.set_under("seagreen")
+# # lista de cores, em ordem crescete. RGBA
+# colors = ['mediumseagreen', 'mediumaquamarine', 'palegreen', 'white']
 
-# nromaliza com base nos intervalos
-norm = mcolors.BoundaryNorm(divlevs, cmap.N) # util para o PCOLORMESH, CONTOURF nao usa
+# # cria um novo cmap a partir do pre-existente
+# cmap = mcolors.LinearSegmentedColormap.from_list(
+#     'Custom cmap', colors, divlevs.shape[0] - 1)
+# cmap.set_over('white')
+# cmap.set_under("seagreen")
+
+# # nromaliza com base nos intervalos
+# norm = mcolors.BoundaryNorm(divlevs, cmap.N) # util para o PCOLORMESH, CONTOURF nao usa
 
 # variaveis repetidas em cada loop
 dx, dy = mpcalc.lat_lon_grid_deltas(lons, lats)
 
-for i in range(len(file_1.variables['time2'])):
+for i in range(len(file_1.variables['time'])):
         
     #divergencia
     args = dict(
-        time2 = file_1.time2[i] ,
+        time = file_1.time[i] ,
         vertical=level_1,
         latitude=lat_slice,
         longitude=lon_slice
@@ -76,7 +84,7 @@ for i in range(len(file_1.variables['time2'])):
     divergencia = mpcalc.divergence(u, v, dx=dx, dy=dy, x_dim=- 1, y_dim=- 2) *  1e6
     
     #data
-    vtime2 = file_1.time2.data[i].astype('datetime64[ms]').astype('O')
+    vtime = file_1.time.data[i].astype('datetime64[ms]').astype('O')
     
     
     
@@ -106,8 +114,8 @@ for i in range(len(file_1.variables['time2'])):
     sombreado = ax.contourf(lons, 
                             lats, 
                             divergencia, 
-                            cmap = cmap, 
-                            levels = divlevs, 
+                            cmap = cmocean.cm.algae_r, 
+                            levels = levels_1, 
                             extend = 'min'
                             )
 
@@ -116,7 +124,7 @@ for i in range(len(file_1.variables['time2'])):
     #adicionando shapefile
     shapefile = list(
         shpreader.Reader(
-        '/home/cliente/estagio2/shapefiles/BR_UF_2021.shp'
+        '/work/archive/Everson/Coqueiro/script_gfs/GFS-analysis_and_forecast-main/shapefiles/BR_UF_2021/BR_UF_2021.shp'
         ).geometries()
         )
     
@@ -143,7 +151,7 @@ for i in range(len(file_1.variables['time2'])):
 
     
     # Add a title
-    plt.title('Convergência em 1000hPa',
+    plt.title('Convergência em 850hPa',
               fontweight='bold', 
               fontsize=35, 
               loc='left'
@@ -152,7 +160,7 @@ for i in range(len(file_1.variables['time2'])):
     #previsao
     #plt.title('Valid time: {}'.format(vtime), fontsize=35, loc='right')
     #analise
-    plt.title('Análise: {}'.format(vtime2), fontsize=35, loc='right')
-    plt.savefig(f'/home/cliente/estagio2/plots/div/div_{vtime2}.png', bbox_inches='tight')
+    plt.title('Análise: {}'.format(vtime), fontsize=35, loc='right')
+    plt.savefig(f'/work/archive/Everson/Coqueiro/Estagio/plots/div/div_850_{vtime}.png', bbox_inches='tight')
     
     

@@ -22,7 +22,7 @@ import matplotlib.colors as mcolors
 #dataset
 
 file_1 = xr.open_dataset(
-    '/home/coqueiro/ufrj/lapt/dados/lapt_10-12092022.grib2.nc4'
+    '/home/ladsin/Downloads/GFS_analise_11_13.nc4'
     ).metpy.parse_cf()
 
 file_1 = file_1.assign_coords(dict(
@@ -30,8 +30,13 @@ file_1 = file_1.assign_coords(dict(
     ).sortby('longitude')
 
 #extent
-lon_slice = slice(-120., 10.)
-lat_slice = slice(10., -70.)
+lon_0 = -120.
+lon_1 = -20.
+lat_0 = 10.
+lat_1 = -55.
+
+lon_slice = slice(lon_0, lon_1)
+lat_slice = slice(lat_0, lat_1)
 
 #pega as lat/lon
 lats = file_1.latitude.sel(latitude=lat_slice).values
@@ -121,7 +126,7 @@ for i in range(len(file_1.variables['time'])):
     #adicionando shapefile
     shapefile = list(
         shpreader.Reader(
-        '/home/coqueiro/ufrj/Estagio_supervisionado/shapefile/unidades_federativas/Brasil/UFEBRASIL.shp'
+        '/work/archive/Everson/Coqueiro/script_gfs/GFS-analysis_and_forecast-main/shapefiles/BR_UF_2021/BR_UF_2021.shp'
         ).geometries()
         )
     
@@ -161,5 +166,5 @@ for i in range(len(file_1.variables['time'])):
     
     #--------------------------------------------------------------------------
     # Salva imagem
-    plt.savefig(f'/home/coqueiro/ufrj/Estagio_supervisionado/imagens/umidade_especifica/umidade_especifica_{format(vtime)}.png', bbox_inches='tight')
+    plt.savefig(f'/work/archive/Everson/Coqueiro/Estagio/plots/umidade/umidade_{format(vtime)}.png', bbox_inches='tight')
    

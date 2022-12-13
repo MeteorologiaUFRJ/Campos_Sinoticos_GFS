@@ -21,7 +21,7 @@ import cmocean
 
 #dataset
 file_1 = xr.open_dataset(
-    '/home/coqueiro/Downloads/GFS_Global_0p25deg_ana_20221006_1200.grib2.nc4'
+    '/home/ladsin/Downloads/GFS_analise_11_13.nc4'
     ).metpy.parse_cf()
 
 file_1 = file_1.assign_coords(dict(
@@ -29,8 +29,13 @@ file_1 = file_1.assign_coords(dict(
     ).sortby('longitude')
 
 #extent
-lon_slice = slice(-90., 10.)
-lat_slice = slice(10., -70.)
+lon_0 = -120.
+lon_1 = -20.
+lat_0 = 10.
+lat_1 = -55.
+
+lon_slice = slice(lon_0, lon_1)
+lat_slice = slice(lat_0, lat_1)
 
 #pega as lat/lon
 lats = file_1.latitude.sel(latitude=lat_slice).values
@@ -77,7 +82,7 @@ for i in range(len(file_1.variables['time'])):
     interval_1 = 2              # de quanto em quanto voce quer que varie
     levels_1 = np.arange(intervalo_min1, intervalo_max1, interval_1)
 
-    # escolha o tamanho do plot em polegadas (largura x altura)
+    # escolha o tamanho do plot em polegadas (largura x altura)time3
     plt.figure(figsize=(25,25))
     
     # usando a projeção da coordenada cilindrica equidistante 
@@ -132,7 +137,7 @@ for i in range(len(file_1.variables['time'])):
     #adicionando shapefile
     shapefile = list(
         shpreader.Reader(
-        '/home/coqueiro/ufrj/Estagio_supervisionado/shapefile/unidades_federativas/Brasil/UFEBRASIL.shp'
+        '/work/archive/Everson/Coqueiro/script_gfs/GFS-analysis_and_forecast-main/shapefiles/BR_UF_2021/BR_UF_2021.shp'
         ).geometries()
         )
     
@@ -174,5 +179,5 @@ for i in range(len(file_1.variables['time'])):
     
     #--------------------------------------------------------------------------
     # Salva imagem
-    plt.savefig(f'/home/coqueiro/ufrj/Estagio_supervisionado/imagens/corrente_de_jato/corrente_de_jato_{format(vtime)}.png', bbox_inches='tight')
+    plt.savefig(f'/work/archive/Everson/Coqueiro/Estagio/plots/jato/jato_200_{format(vtime)}.png', bbox_inches='tight')
 

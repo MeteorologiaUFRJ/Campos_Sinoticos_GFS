@@ -21,7 +21,7 @@ import cmocean
 
 #dataset
 file_1 = xr.open_dataset(
-    '/home/coqueiro/Downloads/prev.nc4'
+    '/home/ladsin/Downloads/GFS_analise_11_13.nc4'
     ).metpy.parse_cf()
 
 file_1 = file_1.assign_coords(dict(
@@ -30,10 +30,16 @@ file_1 = file_1.assign_coords(dict(
 
 #
 #extent
-lon_slice = slice(-90., 10.)
-lat_slice = slice(15., -70.)
-lon_slice_2 = slice(-90., 10.,15)
-lat_slice_2 = slice(15., -70.,15)
+lon_0 = -120.
+lon_1 = -20.
+lat_0 = 10.
+lat_1 = -55.
+step = 15
+
+lon_slice = slice(lon_0, lon_1)
+lat_slice = slice(lat_0, lat_1)
+lon_slice_2 = slice(lon_0, lon_1, step)
+lat_slice_2 = slice(lat_0, lat_1, step)
 
 #pega as lat/lon
 lats = file_1.latitude.sel(latitude=lat_slice).values
@@ -54,72 +60,72 @@ cmap.set_over("#FF0000")
 cmap.set_under("#0000CD")
 
 
-for i in range(len(file_1.variables['time3'])):
+for i in range(len(file_1.variables['time'])):
     
     geopotencial = file_1.Geopotential_height_isobaric.metpy.sel(
-        time3 = file_1.time3[i], 
+        time = file_1.time[i], 
         vertical=level_2, 
         latitude=lat_slice, 
         longitude=lon_slice
         ).metpy.unit_array.squeeze()
     
     geopotencial_1000 = file_1.Geopotential_height_isobaric.metpy.sel(
-        time3 = file_1.time3[i], 
+        time = file_1.time[i], 
         vertical=level_3, 
         latitude=lat_slice, 
         longitude=lon_slice
         ).metpy.unit_array.squeeze()
     
     geopotencial_500 = file_1.Geopotential_height_isobaric.metpy.sel(
-        time3 = file_1.time3[i], 
+        time = file_1.time[i], 
         vertical=level_2, 
         latitude=lat_slice, 
         longitude=lon_slice
         ).metpy.unit_array.squeeze()
     
     u = file_1['u-component_of_wind_isobaric'].metpy.sel(
-        time3 = file_1.time3[i], 
+        time = file_1.time[i], 
         vertical=level_1, 
         latitude=lat_slice, 
         longitude=lon_slice
         ).metpy.unit_array.squeeze()
     
     v = file_1['v-component_of_wind_isobaric'].metpy.sel(
-        time3 = file_1.time3[i], 
+        time = file_1.time[i], 
         vertical=level_1, 
         latitude=lat_slice, 
         longitude=lon_slice
         ).metpy.unit_array.squeeze()
     
     u_2 = file_1['u-component_of_wind_isobaric'].metpy.sel(
-        time3 = file_1.time3[i], 
+        time = file_1.time[i], 
         vertical=level_1, 
         latitude=lat_slice_2, 
         longitude=lon_slice_2
         ).metpy.unit_array.squeeze().to('kt')
     
     v_2 = file_1['v-component_of_wind_isobaric'].metpy.sel(
-        time3 = file_1.time3[i], 
+        time = file_1.time[i], 
         vertical=level_1, 
         latitude=lat_slice_2, 
         longitude=lon_slice_2
         ).metpy.unit_array.squeeze().to('kt')
     
     pnmm = file_1.Pressure_reduced_to_MSL_msl.metpy.sel(
-        time3 = file_1.time3[i], 
+        time = file_1.time[i], 
         latitude=lat_slice, 
         longitude=lon_slice
         ).metpy.unit_array.squeeze()* 0.01 * units.hPa/units.Pa
     
     t = file_1.Temperature_isobaric.metpy.sel(
-        time3 = file_1.time3[i],  
+        time = file_1.time[i],  
         vertical=level_1, 
         latitude=lat_slice, 
         longitude=lon_slice
         ).metpy.unit_array.squeeze()
     
     #data
-    vtime3 = file_1.time3.data[i].astype('datetime64[ms]').astype('O')
+    vtime = file_1.time.data[i].astype('datetime64[ms]').astype('O')
     
     dx, dy = mpcalc.lat_lon_grid_deltas(lons, lats)
     
@@ -224,7 +230,7 @@ for i in range(len(file_1.variables['time3'])):
     #adicionando shapefile
     shapefile = list(
         shpreader.Reader(
-        '/home/coqueiro/Downloads/br_unidades_da_federacao/BR_UF_2019.shp'
+        '/work/archive/Everson/Coqueiro/script_gfs/GFS-analysis_and_forecast-main/shapefiles/BR_UF_2021/BR_UF_2021.shp'
         ).geometries()
         )
     
@@ -253,15 +259,15 @@ for i in range(len(file_1.variables['time3'])):
     # Add a title
     plt.title('Adveccao de temperatura (K/s) - 850 hPa',
               fontweight='bold', 
-              fontsize=35, 
+              fontsize=30, 
               loc='left'
               )
     
     #previsao
-    plt.title('Valid Time: {}'.format(vtime3), fontsize=25, loc='right')
+    #plt.title('Valid Time: {}'.format(vtime), fontsize=25, loc='right')
     #analise
-    #plt.title('Análise: {}'.format(vtime), fontsize=35, loc='right')
+    plt.title('Análise: {}'.format(vtime), fontsize=25, loc='right')
     
     #--------------------------------------------------------------------------
     # Salva imagem
-    plt.savefig(f'/home/coqueiro/ufrj/Estagio_supervisionado/imagens/adv_temperatura/adveccao_de_temperatura_{vtime3}.png', bbox_inches='tight')
+    plt.savefig(f'/work/archive/Everson/Coqueiro/Estagio/plots/adv_temp/adv_temp_{vtime}.png', bbox_inches='tight')
