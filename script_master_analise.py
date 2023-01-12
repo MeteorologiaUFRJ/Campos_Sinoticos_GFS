@@ -22,7 +22,7 @@ import matplotlib.colors as mcolors
 
 ############################ Dataset ###################################
 file_1 = xr.open_mfdataset(
-    '/home/everson/Downloads/Dados_gfs/GFS_Global_0p25deg_20221217_18_1200.grib2.nc4'
+    '/home/everson/Downloads/Dados_gfs/GFS_Global_0p25deg_ana_20221214_1200.grib2.nc4'
     ).metpy.parse_cf()
 
 # Converte longitude
@@ -198,9 +198,7 @@ for i in range(len(file_1.variables['time'])):
     # Temperatura em 850 hPa
     temp = file_1.Temperature_isobaric.metpy.sel(**args_3).metpy.unit_array.squeeze().to('degC')
     
-    # ROLE
-    rol = file_1['Upward_Long-Wave_Radp_Flux_atmosphere_top_Mixed_intervals_Average'].metpy.sel(**args_0).metpy.unit_array.squeeze()
-    
+        
     # Umidade especifica
     q = file_1.Specific_humidity_isobaric.metpy.sel(**args_3).metpy.unit_array.squeeze()* 1e3
     
@@ -970,109 +968,6 @@ for i in range(len(file_1.variables['time'])):
     ######################################################################################################################################
     ######################################################################################################################################
     
-    #################################### ROL ################################################
-    ###################### Especificações do Plot #############################
-    # escolha o tamanho do plot em polegadas (largura x altura)
-    plt.figure(figsize=(25,25))
-    
-    # usando a projeção da coordenada cilindrica equidistante 
-    ax = plt.axes(projection=ccrs.PlateCarree())
-    gl = ax.gridlines(crs=ccrs.PlateCarree(),
-                      color='gray',
-                      alpha=1.0, 
-                      linestyle='--', 
-                      linewidth=0.5,
-                      xlocs=np.arange(-180, 180, 10), 
-                      ylocs=np.arange(-90, 90, 10), 
-                      draw_labels=True
-                      )
-    gl.top_labels = False
-    gl.right_labels = False
-    gl.xlabel_style = {'size': 29, 'color': 'black'}
-    gl.ylabel_style = {'size': 29, 'color': 'black'}
-    
-    # intevalos da pnmm
-    intervalo_min_12 = np.amin(np.array(pnmm))
-    intervalo_max_12 = np.amax(np.array(pnmm))
-    interval_12 = 2              # de quanto em quanto voce quer que varie
-    levels_12 = np.arange(intervalo_min_12, intervalo_max_12, interval_12)
-    
-    # intevalos do rol
-    intervalo_min_13 = 70
-    intervalo_max_13 = 340
-    interval_13 = 20             # de quanto em quanto voce quer que varie
-    levels_13 = np.arange(intervalo_min_13, intervalo_max_13, interval_13)
-    
-    # adiciona mascara de terra
-    ax.add_feature(cfeature.LAND)
-    
-    # plota a imagem rol
-    rol_sombreado = ax.contourf(lons, 
-                            lats, 
-                            rol, 
-                            cmap=cmocean.cm.thermal, 
-                            levels = levels_13, 
-                            extend = 'neither'
-                            )
-    
-    # plota a imagem pressao
-    pressao_contorno = ax.contour(lons,
-                          lats, 
-                          pnmm, 
-                          colors='black', 
-                          linewidths=2, 
-                          levels=levels_12
-                          )
-    
-    ax.clabel(pressao_contorno, 
-              inline = 1, 
-              inline_spacing = 1, 
-              fontsize=20, 
-              fmt = '%3.0f', 
-              colors= 'black'
-              )
-    
-    #adicionando shapefile
-    shapefile = list(
-        shpreader.Reader(
-        '/home/everson/Downloads/GFS-analysis_and_forecast-main/shapefiles/BR_UF_2021/BR_UF_2021.shp'
-        ).geometries()
-        )
-    
-    ax.add_geometries(
-        shapefile, 
-        ccrs.PlateCarree(), 
-        edgecolor = 'black', 
-        facecolor='none', 
-        linewidth=0.5
-        )
-    
-    # adiciona continente e bordas
-    ax.coastlines(resolution='10m', color='black', linewidth=3)
-    ax.add_feature(cfeature.BORDERS, edgecolor='black', linewidth=3)
-    
-    # adiciona legenda 
-    barra_de_cores = plt.colorbar(rol_sombreado, 
-                                  orientation = 'horizontal', 
-                                  pad=0.04, 
-                                  fraction=0.04
-                                  )
-    font_size = 20 # Adjust as appropriate.
-    barra_de_cores.ax.tick_params(labelsize=font_size)
-    
-    # Add a title
-    plt.title('ROL W/m²',
-              fontweight='bold', 
-              fontsize=35, 
-              loc='left'
-              )
-    #previsao
-    plt.title('Valid Time: {}'.format(vtempo), fontsize=20, loc='right')
-    
-    #--------------------------------------------------------------------------
-    # Salva imagem
-    plt.savefig(f'/home/everson/Estagio_supervisionado/imagens/rol/rol_{format(vtempo)}.png', bbox_inches='tight')
-    plt.close()
     
     #################################### Umidade especifica ################################################
     ###################### Especificações do Plot #############################
@@ -1136,10 +1031,10 @@ for i in range(len(file_1.variables['time'])):
               )
     
     #previsao
-    plt.title('Valid time: {}'.format(vtempo), fontsize=20, loc='right')
+    #plt.title('Valid time: {}'.format(vtempo), fontsize=20, loc='right')
     
     #analise
-    #plt.title('Análise: {}'.format(vtempo), fontsize=35, loc='right')
+    plt.title('Análise: {}'.format(vtempo), fontsize=35, loc='right')
     
     #--------------------------------------------------------------------------
     # Salva imagem
