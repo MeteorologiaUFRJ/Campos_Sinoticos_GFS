@@ -1,31 +1,45 @@
-##### GFS-analysis_and_forecast #####
-Campos de análise e previsão do tempo elaborados para o estágio supervisionado II 
-____________________________________________________________________________________________________________________________
-#### Instalação das bibliotecas necessárias através do terminal ####
+# 🗺️ Campos Sinóticos de Análise e Previsão do GFS 🌦️
 
-#### Caso utilize o ambiente Anaconda, instale as bibliotecas necessárias da seguinte forma: ####
+> Campos de análise e previsão do tempo elaborados para o Estágio Supervisionado II / B 
+____________________________________________________________________________________________________________________________
+## Instalação das bibliotecas necessárias através do terminal 
+
+
+#### Caso utilize o ambiente Anaconda, instale as bibliotecas necessárias da seguinte forma: (Recomendado)
+
+```
 conda install -c conda-forge xarray netCDF4 cartopy matplotlib numpy cmocean metpy
+```
 
-#### Do contrário, as bibliotecas podem ser instaladas a partir dos seguintes comandos: ####
-
+#### Do contrário, as bibliotecas podem ser instaladas a partir dos seguintes comandos: 
+```
 pip install DateTime
-
+```
+```
 pip install xarray
-
+```
+```
 pip install netCDF4
-
+```
+```
 conda install -c conda-forge cartopy
-
+```
+> A biblioteca cartopy precisa ser instalada dessa forma, ou não irá instalar/funcionar
+```
 pip install matplotlib
-
+```
+```
 pip install numpy
-
+```
+```
 pip install cmocean
-
+```
+```
 pip install metpy
+```
 ____________________________________________________________________________________________________________________________
 
-##### Passos para baixar os dados de previsão: #####
+## Passos para baixar os dados de previsão: 
 
 1. Os dados para previsão podem ser acessados através do link: https://thredds.ucar.edu/thredds/catalog/grib/NCEP/GFS/Global_0p25deg/catalog.html
 2. Escolha a rodada de sua preferência
@@ -38,7 +52,7 @@ ________________________________________________________________________________
 8. Selecione a opção "netcdf4" em Output format
 ____________________________________________________________________________________________________________________________
 
-##### Passos para baixar os dados de análise: #####
+## Passos para baixar os dados de análise: 
 
 1. Os dados para previsão podem ser acessados através do link:https://thredds.ucar.edu/thredds/catalog/grib/NCEP/GFS/Global_0p25deg_ana/catalog.html
 2. Escolha a rodada de sua preferência
@@ -50,16 +64,26 @@ ________________________________________________________________________________
 7. Selecione o periodo de tempo para análise em Time subset (Stride: 4 - intervalos de 12h em 12h e Stride: 2 - intervalos de 6h em 6h)
 8. Selecione a opção "netcdf4" em Output format
 ____________________________________________________________________________________________________________________________
-##### Passos para utilizar o script: #####
-Após o download do dado ajuste o caminho até o diretório onde foi armazenado no seu computador e substitua em:
+
+## Passos para utilizar o script: 
+Após o download do dado ajuste o caminho até o diretório onde foi armazenado no seu computador e substitua em: 
+
+```
 "file_1 = xr.open_dataset('/diretorio-do-dado/GFS_Global_0p25deg_20220910_0600.grib2.nc4'
     ).metpy.parse_cf()"
+```    
     
-Além disso, altere o caminho até o diretório de armazenamento do shapefile (arquivo "BR_UF_2021.zip") em:
+Além disso, altere o caminho até o diretório de armazenamento do shapefile (arquivo "BR_UF_2021.zip") em: 
+
+```
 shapefile = list(
         shpreader.Reader(
         '/caminho-do-shapefile/br_unidades_da_federacao/BR_UF_2019.shp'
         ).geometries()
         )
-     
+```
+Para alterar a área de plot, altere a Lat/Lon nessa linha do script. 
 
+```
+ ax.set_extent([-90, -20, -60, 10], crs=ccrs.PlateCarree())
+```
