@@ -92,3 +92,9 @@ Para alterar a área de plot, altere a Lat/Lon nessa linha do script.
 ```
  ax.set_extent([-90, -20, -60, 10], crs=ccrs.PlateCarree())
 ```
+____________________________________________________________________________________________________________________________
+## Contribuidores:
+
+<a href="https://github.com/ecockeiro/GFS-analysis_and_forecast/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=ecockeiro/GFS-analysis_and_forecast" />
+</a>
