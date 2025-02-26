@@ -94,7 +94,7 @@ Para alterar a área de plot, altere a Lat/Lon nessa linha do script.
 ```
 
 ____________________________________________________________________________________________________________________________
-## Exemplos de Campos sinóticos gerados:
+## Exemplos de campos sinóticos gerados:
 
 <p align="center" width="100%">
     <img width="33%" src="exemplo_campos/corrente_de_jato.png">
