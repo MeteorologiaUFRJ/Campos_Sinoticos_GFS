@@ -99,10 +99,9 @@ ________________________________________________________________________________
 <p align="center" width="100%">
     <img width="33%" src="exemplo_campos/corrente_de_jato.png">
     <img width="33%" src="exemplo_campos/espessura.png">
-    <img width="33%" src="exemplo_campos/adv_temp.png
+    <img width="33%" src="exemplo_campos/adv_temp.png">
 </p>
  
-
 ____________________________________________________________________________________________________________________________
 ## Contribuidores:
 
