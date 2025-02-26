@@ -96,12 +96,10 @@ Para alterar a área de plot, altere a Lat/Lon nessa linha do script.
 ____________________________________________________________________________________________________________________________
 ## Exemplos de Campos sinóticos plotados:
 
-<p align="left" width="100%">
-    <img width="33%" src="corrente_de_jato_250_2024-12-26_00-00-00.png">
-</p>
-
 <p align="center" width="100%">
-    <img width="33%" src="espessura_2024-11-21_00-00-00.png">
+    <img width="33%" src="exemplo_campos/corrente_de_jato.png">
+    <img width="33%" src="exemplo_campos/espessura.png">
+    <img width="33%" src="exemplo_campos/adv_temp.png
 </p>
  
 
