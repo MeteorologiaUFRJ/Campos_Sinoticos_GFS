@@ -49,7 +49,7 @@ ________________________________________________________________________________
 5. Selecione a variavel "Pressure reduced to MSL @ Mean sea level" em >>> reftime time isobaric1 latitude longitude <<<
 6. Selecione as latitudes e longitudes de sua preferência em Horizontal subset
 7. Selecione o periodo de tempo para análise em Time subset (Stride: 4 - intervalos de 12h em 12h e Stride: 2 - intervalos de 6h em 6h)
-8. Selecione a opção "netcdf4" em Output format
+8. Selecione a opção "netcdf4_classic" em Output format
 ____________________________________________________________________________________________________________________________
 
 ## Passos para baixar os dados de análise: 
@@ -62,7 +62,12 @@ ________________________________________________________________________________
 5. Selecione a variavel "Pressure reduced to MSL @ Mean sea level" em >>> reftime time isobaric1 latitude longitude <<<
 6. Selecione as latitudes e longitudes de sua preferência em Horizontal subset
 7. Selecione o periodo de tempo para análise em Time subset (Stride: 4 - intervalos de 12h em 12h e Stride: 2 - intervalos de 6h em 6h)
-8. Selecione a opção "netcdf4" em Output format
+8. Selecione a opção "netcdf4_classic" em Output format
+
+### É possível baixar mais de um dado de análise utilizando "Full Collection Dataset" no início da página.
+1. Siga o tutorial acima
+2. Ao chegar no passo 7, o periodo de tempo para a análise muda (Stride: 1 - 6h em 6h; Stride: 2 - 12h em 12h) aumentando gradativamente.
+
 ____________________________________________________________________________________________________________________________
 
 ## Passos para utilizar o script: 
